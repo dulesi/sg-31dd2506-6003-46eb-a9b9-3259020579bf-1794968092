@@ -1,10 +1,11 @@
 ---
 title: Tab 2 (Craving Coach & Emergency System)
-status: todo
+status: done
 priority: high
 type: feature
-tags: [coach, emergency, interactive]
+tags: [craving-coach, emergency]
 created_by: agent
+created_at: 2026-10-19T23:45:49Z
 position: 2
 ---
 

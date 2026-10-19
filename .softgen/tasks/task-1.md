@@ -1,10 +1,11 @@
 ---
 title: Mobile Shell & Tab 1 (Dashboard)
-status: todo
+status: done
 priority: urgent
 type: feature
-tags: [layout, dashboard, tracker]
+tags: [mobile, dashboard, navigation]
 created_by: agent
+created_at: 2026-10-19T23:45:49Z
 position: 1
 ---
 

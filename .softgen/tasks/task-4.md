@@ -1,10 +1,11 @@
 ---
 title: Tab 4 (Account & Program Guarantees)
-status: todo
+status: done
 priority: low
 type: feature
-tags: [account, settings, restart]
+tags: [account, reset]
 created_by: agent
+created_at: 2026-10-19T23:45:49Z
 position: 4
 ---
 

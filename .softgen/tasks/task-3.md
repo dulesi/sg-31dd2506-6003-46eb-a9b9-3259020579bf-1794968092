@@ -1,10 +1,11 @@
 ---
 title: Tab 3 (Health Milestones & Shopping Guide)
-status: todo
+status: done
 priority: medium
 type: feature
-tags: [timeline, checklist, health]
+tags: [health, timeline, shopping]
 created_by: agent
+created_at: 2026-10-19T23:45:49Z
 position: 3
 ---
 
