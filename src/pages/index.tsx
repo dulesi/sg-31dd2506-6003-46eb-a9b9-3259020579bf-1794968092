@@ -1,12 +1,64 @@
-import React from 'react'
+import { useState, useEffect } from 'react'
+import MobileShell from '@/components/MobileShell'
+import ProgressTab from '@/components/tabs/ProgressTab'
+import CoachTab from '@/components/tabs/CoachTab'
+import HealthTab from '@/components/tabs/HealthTab'
+import AccountTab from '@/components/tabs/AccountTab'
+import { getProgressData, saveProgressData } from '@/lib/localStorage'
+
+type TabId = 'progress' | 'coach' | 'health' | 'account'
 
 export default function Home() {
+  const [activeTab, setActiveTab] = useState<TabId>('progress')
+  const [progressData, setProgressData] = useState(getProgressData())
+  const [triggerCoach, setTriggerCoach] = useState(false)
+
+  useEffect(() => {
+    setProgressData(getProgressData())
+  }, [])
+
+  const handlePanicClick = () => {
+    setActiveTab('coach')
+    setTriggerCoach(true)
+  }
+
+  const updateProgress = (updates: any) => {
+    saveProgressData(updates)
+    setProgressData(getProgressData())
+  }
+
   return (
-    <main className="min-h-screen bg-background flex items-center justify-center">
-      <div className="text-center space-y-4">
-        <h1 className="text-4xl font-bold text-foreground">Hello World</h1>
-        <p className="text-lg text-muted-foreground">This is going to be your softgen app, start by describing your project.</p>
-      </div>
-    </main>
+    <MobileShell activeTab={activeTab} onTabChange={setActiveTab}>
+      {activeTab === 'progress' && (
+        <ProgressTab 
+          data={progressData} 
+          onUpdate={updateProgress}
+          onPanicClick={handlePanicClick}
+        />
+      )}
+      {activeTab === 'coach' && (
+        <CoachTab 
+          data={progressData}
+          onUpdate={updateProgress}
+          triggerStart={triggerCoach}
+          onTriggerClear={() => setTriggerCoach(false)}
+        />
+      )}
+      {activeTab === 'health' && (
+        <HealthTab 
+          data={progressData}
+          onUpdate={updateProgress}
+        />
+      )}
+      {activeTab === 'account' && (
+        <AccountTab 
+          data={progressData}
+          onReset={() => {
+            updateProgress({ currentDay: 1, currentStreak: 0, lastCheckIn: null })
+            setActiveTab('progress')
+          }}
+        />
+      )}
+    </MobileShell>
   )
 }
