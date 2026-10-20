@@ -6,6 +6,7 @@ import { useState } from 'react'
 
 interface AccountTabProps {
   data: any
+  onUpdate: (updates: any) => void
   onReset: () => void
 }
 

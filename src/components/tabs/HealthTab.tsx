@@ -2,11 +2,12 @@ import { useState } from 'react'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Activity, Droplets, Apple, CheckCircle, Circle } from 'lucide-react'
+import { Activity, Droplets, Apple, CheckCircle, Circle, CheckCircle2 } from 'lucide-react'
 
 interface HealthTabProps {
   data: any
-  onUpdate: (updates: any) => void
+  shoppingList: { [key: string]: boolean }
+  onShoppingUpdate: (updates: any) => void
 }
 
 const timeline = [

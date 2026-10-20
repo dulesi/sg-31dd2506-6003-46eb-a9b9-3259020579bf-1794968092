@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import MobileShell from '@/components/MobileShell'
+import MobileShell, { TabId } from '@/components/MobileShell'
 import ProgressTab from '@/components/tabs/ProgressTab'
 import CoachTab from '@/components/tabs/CoachTab'
 import HealthTab from '@/components/tabs/HealthTab'
@@ -7,7 +7,7 @@ import AccountTab from '@/components/tabs/AccountTab'
 import { getProgressData, updateProgressData, getShoppingList, updateShoppingList, incrementPanicClick } from '@/lib/localStorage'
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState('progress')
+  const [activeTab, setActiveTab] = useState<TabId>('progress')
   const [progressData, setProgressData] = useState(getProgressData())
   const [shoppingList, setShoppingList] = useState(getShoppingList())
   const [triggerCoach, setTriggerCoach] = useState(false)
