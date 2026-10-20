@@ -14,6 +14,12 @@ interface CoachTabProps {
   onComplete?: () => void
 }
 
+type AssessmentAdvice = {
+  biology: string
+  community: string
+  action: string
+}
+
 const feelings = [
   { id: 'great', label: 'Great & Happy', emoji: '🌟' },
   { id: 'good', label: 'Good & In Control', emoji: '👍' },
@@ -46,7 +52,7 @@ export default function CoachTab({ data, onUpdate, triggerStart, onTriggerClear,
   const [selectedFeeling, setSelectedFeeling] = useState<string | null>(null)
   const [selectedTiming, setSelectedTiming] = useState<string | null>(null)
   const [selectedSupport, setSelectedSupport] = useState<string | null>(null)
-  const [advice, setAdvice] = useState<string>('')
+  const [advice, setAdvice] = useState<string | AssessmentAdvice | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const { toast } = useToast()
@@ -118,7 +124,7 @@ export default function CoachTab({ data, onUpdate, triggerStart, onTriggerClear,
     setSelectedFeeling(null)
     setSelectedTiming(null)
     setSelectedSupport(null)
-    setAdvice('')
+    setAdvice(null)
     setError(null)
   }
 
