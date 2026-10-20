@@ -278,7 +278,7 @@ export default function CoachTab({ data, onUpdate, triggerStart, onTriggerClear,
         </div>
       )}
 
-      {step === 4 && insight && (
+      {step === 4 && advice && (
         <div className="space-y-4">
           <Card className="p-6 shadow-md rounded-2xl space-y-6">
             <div className="flex items-center justify-between">
@@ -288,7 +288,7 @@ export default function CoachTab({ data, onUpdate, triggerStart, onTriggerClear,
               </Badge>
             </div>
 
-            {typeof insight === 'object' && insight.biology && insight.community && insight.action ? (
+            {typeof advice === 'object' && advice.biology && advice.community && advice.action ? (
               <div className="space-y-6">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 text-foreground font-semibold">
@@ -296,7 +296,7 @@ export default function CoachTab({ data, onUpdate, triggerStart, onTriggerClear,
                     <h3 className="text-base">What's Happening</h3>
                   </div>
                   <p className="text-sm text-muted leading-relaxed pl-7">
-                    {insight.biology}
+                    {advice.biology}
                   </p>
                 </div>
 
@@ -306,7 +306,7 @@ export default function CoachTab({ data, onUpdate, triggerStart, onTriggerClear,
                     <h3 className="text-base">Community Insight</h3>
                   </div>
                   <p className="text-sm text-muted leading-relaxed pl-7">
-                    {insight.community}
+                    {advice.community}
                   </p>
                 </div>
 
@@ -316,14 +316,14 @@ export default function CoachTab({ data, onUpdate, triggerStart, onTriggerClear,
                     <h3 className="text-base">Today's Action</h3>
                   </div>
                   <p className="text-sm text-muted leading-relaxed pl-7">
-                    {insight.action}
+                    {advice.action}
                   </p>
                 </div>
               </div>
             ) : (
               <div className="p-6 rounded-xl bg-primary/10 border-2 border-primary/20">
                 <p className="text-base font-medium text-foreground leading-relaxed whitespace-pre-wrap">
-                  {typeof insight === 'string' ? insight : JSON.stringify(insight)}
+                  {typeof advice === 'string' ? advice : JSON.stringify(advice)}
                 </p>
               </div>
             )}
