@@ -28,20 +28,22 @@ export default function ProgressTab({ data, onUpdate, onPanicClick }: ProgressTa
   const hackLimitReached = hackRefreshCount >= 10
 
   useEffect(() => {
-    fetchDailyHack()
+    fetchDailyHack(false)
   }, [])
 
-  const fetchDailyHack = async () => {
-    const { limitReached } = incrementHackRefresh()
-    
-    if (limitReached) {
-      toast({
-        title: "Daily limit reached",
-        description: "You've reached your daily limit of 10 hacks. Pick one from today and put it into practice!",
-        duration: 5000,
-      })
-      onUpdate({ hackRefreshesToday: 11, hackRefreshDate: new Date().toISOString().split('T')[0] })
-      return
+  const fetchDailyHack = async (checkLimit: boolean = true) => {
+    if (checkLimit) {
+      const { limitReached } = incrementHackRefresh()
+      
+      if (limitReached) {
+        toast({
+          title: "Daily limit reached",
+          description: "You've reached your daily limit of 10 hacks. Pick one from today and put it into practice!",
+          duration: 5000,
+        })
+        onUpdate({ hackRefreshesToday: 11, hackRefreshDate: new Date().toISOString().split('T')[0] })
+        return
+      }
     }
 
     setIsLoadingHack(true)
@@ -217,7 +219,7 @@ export default function ProgressTab({ data, onUpdate, onPanicClick }: ProgressTa
               </div>
             </div>
             <button
-              onClick={fetchDailyHack}
+              onClick={() => fetchDailyHack(true)}
               disabled={isLoadingHack || hackLimitReached}
               className="p-2 rounded-lg hover:bg-accent/10 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               title={hackLimitReached ? `Daily limit reached (${hackRefreshCount}/10)` : "Get new hack"}
