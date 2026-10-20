@@ -59,7 +59,7 @@ const shoppingCategories = [
   }
 ]
 
-export default function HealthTab({ data, onUpdate }: HealthTabProps) {
+export default function HealthTab({ data, shoppingList, onShoppingUpdate }: HealthTabProps) {
   const currentDay = data.currentDay
 
   const getPhaseStatus = (daysRange: string) => {
@@ -70,9 +70,9 @@ export default function HealthTab({ data, onUpdate }: HealthTabProps) {
   }
 
   const toggleShoppingItem = (item: string) => {
-    const current = data.shoppingList || {}
+    const current = shoppingList || {}
     const updated = { ...current, [item]: !current[item] }
-    onUpdate({ shoppingList: updated })
+    onShoppingUpdate(updated)
   }
 
   return (
