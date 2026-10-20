@@ -1,63 +1,13 @@
 import { useState } from 'react'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Activity, Droplets, Apple, CheckCircle, Circle, CheckCircle2 } from 'lucide-react'
+import { CheckCircle2, Circle } from 'lucide-react'
 
 interface HealthTabProps {
   data: any
   shoppingList: { [key: string]: boolean }
   onShoppingUpdate: (updates: any) => void
 }
-
-const timeline = [
-  {
-    days: '1-3',
-    title: 'Blood Sugar Stabilization',
-    description: 'Reduced appetite spikes and insulin sensitivity improvement',
-    icon: Activity,
-    color: 'text-primary'
-  },
-  {
-    days: '4-7',
-    title: 'Reduced Bloating & Better Sleep',
-    description: 'Lower inflammation and deeper REM sleep cycles',
-    icon: Activity,
-    color: 'text-accent'
-  },
-  {
-    days: '8-14',
-    title: 'Taste Buds Reset',
-    description: 'Natural foods taste sweeter, skin clarity boost',
-    icon: Apple,
-    color: 'text-primary'
-  },
-  {
-    days: '15-30',
-    title: 'Peak Focus & Energy',
-    description: 'Complete elimination of energy crashes',
-    icon: Activity,
-    color: 'text-accent'
-  }
-]
-
-const shoppingCategories = [
-  {
-    title: 'Hydration First-Aid',
-    icon: Droplets,
-    items: ['Lemons (fresh)', 'Sparkling Water', 'Mint Tea', 'Cucumber', 'Green Tea']
-  },
-  {
-    title: 'Crunchy Alternatives',
-    icon: Apple,
-    items: ['Raw Almonds', 'Walnuts', 'Pumpkin Seeds', 'Carrot Sticks', 'Celery']
-  },
-  {
-    title: 'Taste-Bud Resetters',
-    icon: Activity,
-    items: ['85%+ Dark Chocolate', 'Cinnamon', 'Greek Yogurt (Plain)', 'Berries', 'Vanilla Extract']
-  }
-]
 
 export default function HealthTab({ data, shoppingList, onShoppingUpdate }: HealthTabProps) {
   const currentDay = data.currentDay
@@ -75,60 +25,129 @@ export default function HealthTab({ data, shoppingList, onShoppingUpdate }: Heal
     onShoppingUpdate(updated)
   }
 
+  const isItemChecked = (item: string) => {
+    return shoppingList?.[item] || false
+  }
+
+  const timelineData = [
+    {
+      days: '1-3',
+      title: 'Withdrawal Phase',
+      description: 'Initial cravings, mood swings, headaches. Your body is clearing sugar toxins.',
+      symptoms: ['Irritability', 'Brain fog', 'Fatigue']
+    },
+    {
+      days: '4-7',
+      title: 'Energy Stabilization',
+      description: 'Blood sugar levels start to normalize. Energy crashes reduce.',
+      symptoms: ['Better sleep', 'Reduced cravings', 'Clearer mind']
+    },
+    {
+      days: '8-14',
+      title: 'Metabolic Reset',
+      description: 'Your cells become more insulin-sensitive. Fat burning increases.',
+      symptoms: ['Weight loss begins', 'Skin clears up', 'Stable energy']
+    },
+    {
+      days: '15-21',
+      title: 'Habit Formation',
+      description: 'New neural pathways form. Sugar doesn\'t dominate your thoughts.',
+      symptoms: ['Confident choices', 'Taste sensitivity returns', 'Mental clarity']
+    },
+    {
+      days: '22-30',
+      title: 'Full Adaptation',
+      description: 'Your body runs efficiently on natural energy. Sugar-free becomes your new normal.',
+      symptoms: ['Sustained energy', 'Emotional stability', 'Freedom from cravings']
+    }
+  ]
+
+  const shoppingItems = {
+    'Hydration Heroes': [
+      'Sparkling Water',
+      'Mint Tea',
+      'Cucumber',
+      'Green Tea'
+    ],
+    'Crunchy Alternatives': [
+      'Raw Almonds',
+      'Walnuts',
+      'Pumpkin Seeds',
+      'Carrot Sticks',
+      'Celery'
+    ],
+    'Taste-Bud Resetters': [
+      '85%+ Dark Chocolate',
+      'Cinnamon Sticks',
+      'Unsweetened Cocoa Powder'
+    ],
+    'Protein Stabilizers': [
+      'Hard-Boiled Eggs',
+      'Plain Greek Yogurt',
+      'String Cheese',
+      'Turkey Slices'
+    ]
+  }
+
   return (
-    <div className="p-4 space-y-6">
+    <div className="p-4 space-y-4">
       <div className="pt-2 pb-4">
-        <h1 className="text-2xl font-bold text-foreground">Health & Energy</h1>
-        <p className="text-sm text-muted">Track your body's transformation</p>
+        <h1 className="text-2xl font-bold text-foreground">Health Timeline</h1>
+        <p className="text-sm text-muted">Your body's recovery journey</p>
       </div>
 
-      <div className="space-y-4">
-        <div className="flex items-center gap-2 mb-4">
-          <Activity className="w-5 h-5 text-primary" />
-          <h2 className="text-lg font-bold text-foreground">Timeline of Body Recovery</h2>
-        </div>
-
-        {timeline.map((phase, index) => {
+      <div className="space-y-3">
+        {timelineData.map((phase, index) => {
           const status = getPhaseStatus(phase.days)
-          const Icon = phase.icon
-
           return (
-            <Card key={index} className={`p-5 shadow-md rounded-2xl ${
-              status === 'active' ? 'border-2 border-primary bg-primary/5' : ''
-            }`}>
+            <Card
+              key={index}
+              className={`p-5 shadow-md rounded-2xl border-2 transition-all ${
+                status === 'active'
+                  ? 'border-primary bg-primary/5'
+                  : status === 'completed'
+                  ? 'border-primary/30 bg-primary/5 opacity-60'
+                  : 'border-border'
+              }`}
+            >
               <div className="flex items-start gap-4">
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${
-                  status === 'completed' ? 'bg-primary/20' :
-                  status === 'active' ? 'bg-primary/20' :
-                  'bg-muted/20'
+                <div className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center font-bold text-sm ${
+                  status === 'active'
+                    ? 'bg-primary text-primary-foreground'
+                    : status === 'completed'
+                    ? 'bg-primary/30 text-primary'
+                    : 'bg-muted/20 text-muted'
                 }`}>
-                  {status === 'completed' ? (
-                    <CheckCircle className="w-6 h-6 text-primary" />
-                  ) : (
-                    <Icon className={`w-6 h-6 ${status === 'active' ? 'text-primary' : 'text-muted'}`} />
-                  )}
+                  {phase.days.split('-')[0]}
                 </div>
-
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Badge variant={status === 'active' ? 'default' : 'outline'} 
-                           className={status === 'active' ? 'bg-primary text-primary-foreground' : ''}>
-                      Days {phase.days}
-                    </Badge>
+                <div className="flex-1 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-bold text-foreground">{phase.title}</h3>
                     {status === 'active' && (
-                      <Badge variant="outline" className="bg-accent/10 text-accent border-accent/20">
-                        Active Now
+                      <Badge className="bg-primary text-primary-foreground text-xs">
+                        Current
                       </Badge>
                     )}
                     {status === 'completed' && (
-                      <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
-                        Completed
-                      </Badge>
+                      <CheckCircle2 className="w-4 h-4 text-primary" />
                     )}
                   </div>
-
-                  <h3 className="font-bold text-foreground mb-1">{phase.title}</h3>
-                  <p className="text-sm text-muted leading-relaxed">{phase.description}</p>
+                  <p className="text-sm text-muted">{phase.description}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {phase.symptoms.map((symptom, idx) => (
+                      <Badge
+                        key={idx}
+                        variant="outline"
+                        className={`text-xs ${
+                          status === 'active' || status === 'completed'
+                            ? 'border-primary/50 text-primary'
+                            : 'border-muted text-muted'
+                        }`}
+                      >
+                        {symptom}
+                      </Badge>
+                    ))}
+                  </div>
                 </div>
               </div>
             </Card>
@@ -136,55 +155,50 @@ export default function HealthTab({ data, shoppingList, onShoppingUpdate }: Heal
         })}
       </div>
 
-      <div className="space-y-4 pt-6">
-        <div className="flex items-center gap-2 mb-4">
-          <Apple className="w-5 h-5 text-accent" />
-          <h2 className="text-lg font-bold text-foreground">Emergency Pantry Shopping List</h2>
-        </div>
-
+      <div className="pt-4">
+        <h2 className="text-xl font-bold text-foreground mb-4">Emergency Pantry Shopping List</h2>
         <p className="text-sm text-muted mb-4">
-          Stock these items at home to be prepared for any craving emergency.
+          Stock these items to handle cravings without breaking your streak
         </p>
 
-        {shoppingCategories.map((category, catIndex) => {
-          const Icon = category.icon
-
-          return (
-            <Card key={catIndex} className="p-5 shadow-md rounded-2xl">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center">
-                  <Icon className="w-5 h-5 text-accent" />
-                </div>
-                <h3 className="font-bold text-foreground">{category.title}</h3>
-              </div>
-
-              <div className="space-y-3">
-                {category.items.map((item, itemIndex) => {
-                  const isChecked = data.shoppingList?.[item] || false
-
+        <div className="space-y-4">
+          {Object.entries(shoppingItems).map(([category, items]) => (
+            <Card key={category} className="p-5 shadow-md rounded-2xl">
+              <h3 className="font-bold text-foreground mb-3 flex items-center gap-2">
+                {category === 'Hydration Heroes' && '💧'}
+                {category === 'Crunchy Alternatives' && '🥜'}
+                {category === 'Taste-Bud Resetters' && '⚡'}
+                {category === 'Protein Stabilizers' && '💪'}
+                {category}
+              </h3>
+              <div className="space-y-2">
+                {items.map((item) => {
+                  const checked = isItemChecked(item)
                   return (
-                    <div key={itemIndex} className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/10 transition-colors">
-                      <Checkbox
-                        id={`${catIndex}-${itemIndex}`}
-                        checked={isChecked}
-                        onCheckedChange={() => toggleShoppingItem(item)}
-                        className="border-2"
-                      />
-                      <label
-                        htmlFor={`${catIndex}-${itemIndex}`}
-                        className={`flex-1 cursor-pointer text-sm ${
-                          isChecked ? 'text-muted line-through' : 'text-foreground font-medium'
-                        }`}
-                      >
+                    <button
+                      key={item}
+                      onClick={() => toggleShoppingItem(item)}
+                      className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-muted/10 transition-colors text-left"
+                    >
+                      {checked ? (
+                        <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0" />
+                      ) : (
+                        <Circle className="w-5 h-5 text-primary flex-shrink-0" />
+                      )}
+                      <span className={`text-sm ${
+                        checked 
+                          ? 'line-through text-muted opacity-50' 
+                          : 'text-foreground'
+                      }`}>
                         {item}
-                      </label>
-                    </div>
+                      </span>
+                    </button>
                   )
                 })}
               </div>
             </Card>
-          )
-        })}
+          ))}
+        </div>
       </div>
     </div>
   )
