@@ -1,10 +1,13 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 
 type RequestBody = {
-  type: 'craving' | 'daily-hack' | 'alternative' | 'self-control'
+  type: 'craving' | 'daily-hack' | 'alternative' | 'self-control' | 'mindset-assessment'
   trigger?: string
   intensity?: number
   currentAdvice?: string
+  feeling?: string
+  timing?: string
+  supportType?: string
 }
 
 const triggerContextMap: Record<string, string> = {
@@ -27,7 +30,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
-  const { type, trigger, intensity, currentAdvice }: RequestBody = req.body
+  const { type, trigger, intensity, currentAdvice, feeling, timing, supportType }: RequestBody = req.body
 
   if (!process.env.OPENAI_API_KEY) {
     return res.status(500).json({ error: 'OpenAI API key not configured' })
@@ -67,6 +70,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       maxTokens = 100
       systemPrompt = 'You are an elite behavioral psychology coach for the "AdioSugar" app. The user has exhausted their emergency panic limit for the day. Provide a short, powerful psychological insight focused on building self-control, emotional regulation, and breaking the impulse loop. Maximum 40 words.'
       userPrompt = 'Generate a tactical self-control mindset hack to help strengthen discipline after multiple daily cravings.'
+    } else if (type === 'mindset-assessment') {
+      if (!feeling || !timing || !supportType) {
+        return res.status(400).json({ error: 'Missing assessment parameters' })
+      }
+
+      temperature = 0.7
+      maxTokens = 250
+      systemPrompt = 'You are an empathetic behavioral coach for the "AdioSugar" app. Based on the user\'s emotional/physical check-in, generate a highly structured 3-part response:\n1. Validation & Biology: Briefly validate their feeling (whether positive, neutral, or negative) and explain the underlying dopamine/blood sugar connection in 2 sentences.\n2. Perspective / Community Note: Share an insightful perspective or reference how other sugar-free habit builders manage this feeling.\n3. Actionable Focus: Provide one clear 2-minute mindset shift or practical action for the rest of the day.'
+      userPrompt = `User check-in: Feeling "${feeling}", started "${timing}", needs "${supportType}". Provide structured guidance.`
     } else {
       return res.status(400).json({ error: 'Invalid type' })
     }

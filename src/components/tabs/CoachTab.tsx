@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { UtensilsCrossed, Brain, Zap, Smartphone, Coffee, ChevronRight, RotateCcw, Loader2, CheckCircle } from 'lucide-react'
+import { ChevronRight, Loader2, CheckCircle, Sparkles } from 'lucide-react'
+import { useToast } from '@/hooks/use-toast'
+import { incrementAssessment } from '@/lib/localStorage'
 
 interface CoachTabProps {
   data: any
@@ -12,28 +14,45 @@ interface CoachTabProps {
   onComplete?: () => void
 }
 
-const triggers = [
-  { id: 'hunger', label: 'Genuine Hunger', subtitle: 'Skipped a meal', icon: UtensilsCrossed },
-  { id: 'stress', label: 'Stress', subtitle: 'Work anxiety / Tension', icon: Brain },
-  { id: 'fatigue', label: 'Fatigue', subtitle: 'Afternoon energy crash', icon: Zap },
-  { id: 'boredom', label: 'Boredom', subtitle: 'Mindless scrolling', icon: Smartphone },
-  { id: 'habit', label: 'Habit', subtitle: 'Right after lunch or dinner', icon: Coffee }
+const feelings = [
+  { id: 'great', label: 'Great & Happy', emoji: '🌟' },
+  { id: 'good', label: 'Good & In Control', emoji: '👍' },
+  { id: 'tired', label: 'Tired or Sleepy', emoji: '🥱' },
+  { id: 'bored', label: 'Bored or Distracted', emoji: '📱' },
+  { id: 'stressed', label: 'Stressed or Overwhelmed', emoji: '🤯' },
+  { id: 'lowenergy', label: 'Low Energy or Unmotivated', emoji: '🔋' },
+  { id: 'discomfort', label: 'Headache or Physical Discomfort', emoji: '🤕' },
+  { id: 'craving', label: 'Craving Sugar Right Now', emoji: '🍫' }
 ]
 
-const intensities = [
-  { id: 1, label: 'Mild Craving', subtitle: 'I can easily distract myself', color: 'bg-green-100 text-green-700 border-green-300' },
-  { id: 2, label: 'Moderate Craving', subtitle: 'Noticeable urge, need action', color: 'bg-yellow-100 text-yellow-700 border-yellow-300' },
-  { id: 3, label: 'Strong Craving', subtitle: 'Hard to resist right now', color: 'bg-orange-100 text-orange-700 border-orange-300' },
-  { id: 4, label: 'EMERGENCY!', subtitle: 'Dying for sugar, about to break!', color: 'bg-red-100 text-red-700 border-red-300' }
+const timings = [
+  { id: 'morning', label: 'Since early morning', emoji: '🌅' },
+  { id: 'breakfast', label: 'After breakfast', emoji: '🍳' },
+  { id: 'midday', label: 'Mid-day / at work', emoji: '💼' },
+  { id: 'lunch', label: 'After lunch', emoji: '🥗' },
+  { id: 'afterwork', label: 'After work', emoji: '🏠' },
+  { id: 'evening', label: 'Late evening', emoji: '🌙' },
+  { id: 'sudden', label: 'Sudden moment (unrelated to time)', emoji: '⚡' }
+]
+
+const supportTypes = [
+  { id: 'science', label: 'Science & Physiology', subtitle: 'Explain what my brain/body is doing', emoji: '🧠' },
+  { id: 'community', label: 'Community Proof & Stories', subtitle: 'How others handle this state', emoji: '👥' },
+  { id: 'mindset', label: 'Guided Mindset Shift', subtitle: 'A 2-minute perspective shift exercise', emoji: '🎯' }
 ]
 
 export default function CoachTab({ data, onUpdate, triggerStart, onTriggerClear, onComplete }: CoachTabProps) {
   const [step, setStep] = useState(0)
-  const [selectedTrigger, setSelectedTrigger] = useState<string | null>(null)
-  const [selectedIntensity, setSelectedIntensity] = useState<number | null>(null)
+  const [selectedFeeling, setSelectedFeeling] = useState<string | null>(null)
+  const [selectedTiming, setSelectedTiming] = useState<string | null>(null)
+  const [selectedSupport, setSelectedSupport] = useState<string | null>(null)
   const [advice, setAdvice] = useState<string>('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const { toast } = useToast()
+
+  const assessmentCount = data.assessmentsToday || 0
+  const assessmentLimitReached = assessmentCount >= 10
 
   useEffect(() => {
     if (triggerStart) {
@@ -42,7 +61,19 @@ export default function CoachTab({ data, onUpdate, triggerStart, onTriggerClear,
     }
   }, [triggerStart, onTriggerClear])
 
-  const fetchAdvice = async (trigger: string, intensity: number) => {
+  const fetchAssessment = async (feeling: string, timing: string, supportType: string) => {
+    const { limitReached } = incrementAssessment()
+    
+    if (limitReached) {
+      toast({
+        title: "Daily limit reached",
+        description: "You've completed your 10 daily mindset check-ins! Focus on applying today's insights.",
+        duration: 5000,
+      })
+      onUpdate({ assessmentsToday: 11, assessmentDate: new Date().toISOString().split('T')[0] })
+      return
+    }
+
     setIsLoading(true)
     setError(null)
     
@@ -50,14 +81,14 @@ export default function CoachTab({ data, onUpdate, triggerStart, onTriggerClear,
       const response = await fetch('/api/ai-coach', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'craving', trigger, intensity })
+        body: JSON.stringify({ type: 'mindset-assessment', feeling, timing, supportType })
       })
 
-      if (!response.ok) throw new Error('Failed to get advice')
+      if (!response.ok) throw new Error('Failed to get assessment')
 
       const data = await response.json()
       setAdvice(data.advice)
-      setStep(3)
+      setStep(4)
     } catch (err) {
       setError('Unable to connect to AI Coach. Please check your internet connection.')
     } finally {
@@ -65,44 +96,28 @@ export default function CoachTab({ data, onUpdate, triggerStart, onTriggerClear,
     }
   }
 
-  const fetchAlternative = async () => {
-    setIsLoading(true)
-    setError(null)
-    
-    try {
-      const response = await fetch('/api/ai-coach', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'alternative', currentAdvice: advice })
-      })
-
-      if (!response.ok) throw new Error('Failed to get alternative')
-
-      const data = await response.json()
-      setAdvice(data.advice)
-    } catch (err) {
-      setError('Unable to fetch alternative. Please try again.')
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const handleTriggerSelect = (triggerId: string) => {
-    setSelectedTrigger(triggerId)
+  const handleFeelingSelect = (feelingId: string) => {
+    setSelectedFeeling(feelingId)
     setStep(2)
   }
 
-  const handleIntensitySelect = async (intensity: number) => {
-    setSelectedIntensity(intensity)
-    if (selectedTrigger) {
-      await fetchAdvice(selectedTrigger, intensity)
+  const handleTimingSelect = (timingId: string) => {
+    setSelectedTiming(timingId)
+    setStep(3)
+  }
+
+  const handleSupportSelect = async (supportId: string) => {
+    setSelectedSupport(supportId)
+    if (selectedFeeling && selectedTiming) {
+      await fetchAssessment(selectedFeeling, selectedTiming, supportId)
     }
   }
 
   const handleReset = () => {
     setStep(0)
-    setSelectedTrigger(null)
-    setSelectedIntensity(null)
+    setSelectedFeeling(null)
+    setSelectedTiming(null)
+    setSelectedSupport(null)
     setAdvice('')
     setError(null)
   }
@@ -118,47 +133,55 @@ export default function CoachTab({ data, onUpdate, triggerStart, onTriggerClear,
     <div className="p-4 space-y-4">
       <div className="pt-2 pb-4">
         <h1 className="text-2xl font-bold text-foreground">Craving Coach</h1>
-        <p className="text-sm text-muted">AI-powered emergency support</p>
+        <p className="text-sm text-muted">Your personal guide to understanding how sugar impacts your daily life</p>
       </div>
 
       {step === 0 && (
         <Card className="p-8 shadow-md rounded-2xl text-center space-y-4">
           <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
-            <Brain className="w-8 h-8 text-primary" />
+            <Sparkles className="w-8 h-8 text-primary" />
           </div>
-          <h2 className="text-xl font-bold text-foreground">Ready to Help</h2>
-          <p className="text-muted">Tap the PANIC button when you need instant support, or start here.</p>
+          <h2 className="text-xl font-bold text-foreground">Daily Mindset Check-In</h2>
+          <p className="text-muted">Take a moment to understand your current state and get personalized guidance.</p>
           <Button 
             onClick={() => setStep(1)}
+            disabled={assessmentLimitReached}
             className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold"
             size="lg"
           >
-            Start Coach Session
+            {assessmentLimitReached ? `Daily Limit Reached (${assessmentCount}/10)` : 'Start Assessment'}
           </Button>
+          {assessmentLimitReached && (
+            <p className="text-xs text-muted italic">
+              Focus on applying today's insights. Limit resets at midnight.
+            </p>
+          )}
         </Card>
       )}
 
       {step === 1 && (
         <div className="space-y-4">
           <Card className="p-6 shadow-md rounded-2xl">
-            <h2 className="text-lg font-bold text-foreground mb-4">Step 1 of 3</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold text-foreground">Step 1 of 3</h2>
+              <Badge variant="outline" className="text-primary border-primary/20">
+                Feeling Check
+              </Badge>
+            </div>
             <p className="text-base font-medium text-foreground mb-6">
-              What is triggering this craving right now?
+              How are you feeling right now?
             </p>
             
             <div className="space-y-3">
-              {triggers.map((trigger) => (
+              {feelings.map((feeling) => (
                 <button
-                  key={trigger.id}
-                  onClick={() => handleTriggerSelect(trigger.id)}
+                  key={feeling.id}
+                  onClick={() => handleFeelingSelect(feeling.id)}
                   className="w-full p-4 rounded-xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all text-left flex items-center gap-4 group"
                 >
-                  <div className="w-12 h-12 rounded-full bg-muted/20 group-hover:bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <trigger.icon className="w-6 h-6 text-muted group-hover:text-primary" />
-                  </div>
+                  <div className="text-3xl flex-shrink-0">{feeling.emoji}</div>
                   <div className="flex-1">
-                    <div className="font-bold text-foreground">{trigger.label}</div>
-                    <div className="text-sm text-muted">{trigger.subtitle}</div>
+                    <div className="font-bold text-foreground">{feeling.label}</div>
                   </div>
                   <ChevronRight className="w-5 h-5 text-muted group-hover:text-primary" />
                 </button>
@@ -171,21 +194,66 @@ export default function CoachTab({ data, onUpdate, triggerStart, onTriggerClear,
       {step === 2 && (
         <div className="space-y-4">
           <Card className="p-6 shadow-md rounded-2xl">
-            <h2 className="text-lg font-bold text-foreground mb-4">Step 2 of 3</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold text-foreground">Step 2 of 3</h2>
+              <Badge variant="outline" className="text-primary border-primary/20">
+                Timing
+              </Badge>
+            </div>
             <p className="text-base font-medium text-foreground mb-6">
-              How strong is the impulse?
+              When did this feeling start?
             </p>
             
             <div className="space-y-3">
-              {intensities.map((intensity) => (
+              {timings.map((timing) => (
                 <button
-                  key={intensity.id}
-                  onClick={() => handleIntensitySelect(intensity.id)}
-                  disabled={isLoading}
-                  className={`w-full p-4 rounded-xl border-2 transition-all text-left ${intensity.color} disabled:opacity-50`}
+                  key={timing.id}
+                  onClick={() => handleTimingSelect(timing.id)}
+                  className="w-full p-4 rounded-xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all text-left flex items-center gap-4 group"
                 >
-                  <div className="font-bold mb-1">Level {intensity.id}: {intensity.label}</div>
-                  <div className="text-sm opacity-75">{intensity.subtitle}</div>
+                  <div className="text-3xl flex-shrink-0">{timing.emoji}</div>
+                  <div className="flex-1">
+                    <div className="font-bold text-foreground">{timing.label}</div>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-muted group-hover:text-primary" />
+                </button>
+              ))}
+            </div>
+          </Card>
+
+          <Button onClick={() => setStep(1)} variant="outline" className="w-full">
+            ← Back
+          </Button>
+        </div>
+      )}
+
+      {step === 3 && (
+        <div className="space-y-4">
+          <Card className="p-6 shadow-md rounded-2xl">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold text-foreground">Step 3 of 3</h2>
+              <Badge variant="outline" className="text-primary border-primary/20">
+                Support Type
+              </Badge>
+            </div>
+            <p className="text-base font-medium text-foreground mb-6">
+              What type of support or insight do you need?
+            </p>
+            
+            <div className="space-y-3">
+              {supportTypes.map((support) => (
+                <button
+                  key={support.id}
+                  onClick={() => handleSupportSelect(support.id)}
+                  disabled={isLoading}
+                  className="w-full p-4 rounded-xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all text-left flex items-center gap-4 group disabled:opacity-50"
+                >
+                  <div className="text-3xl flex-shrink-0">{support.emoji}</div>
+                  <div className="flex-1">
+                    <div className="font-bold text-foreground mb-1">{support.label}</div>
+                    <div className="text-sm text-muted">{support.subtitle}</div>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-muted group-hover:text-primary" />
                 </button>
               ))}
             </div>
@@ -193,7 +261,7 @@ export default function CoachTab({ data, onUpdate, triggerStart, onTriggerClear,
             {isLoading && (
               <div className="flex items-center justify-center gap-2 text-primary mt-4">
                 <Loader2 className="w-5 h-5 animate-spin" />
-                <span className="text-sm font-medium">AI Coach is analyzing...</span>
+                <span className="text-sm font-medium">AI Coach is analyzing your check-in...</span>
               </div>
             )}
 
@@ -204,61 +272,35 @@ export default function CoachTab({ data, onUpdate, triggerStart, onTriggerClear,
             )}
           </Card>
 
-          <Button onClick={() => setStep(1)} variant="outline" className="w-full">
+          <Button onClick={() => setStep(2)} variant="outline" className="w-full">
             ← Back
           </Button>
         </div>
       )}
 
-      {step === 3 && advice && (
+      {step === 4 && advice && (
         <div className="space-y-4">
           <Card className="p-6 shadow-md rounded-2xl space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold text-foreground">Your AI Action Plan</h2>
+              <h2 className="text-lg font-bold text-foreground">Your Personalized Insight</h2>
               <Badge variant="outline" className="text-primary border-primary">
-                Step 3 of 3
+                Complete
               </Badge>
             </div>
 
             <div className="p-6 rounded-xl bg-primary/10 border-2 border-primary/20">
-              <p className="text-base font-medium text-foreground leading-relaxed whitespace-pre-wrap">
+              <p className="text-base text-foreground leading-relaxed whitespace-pre-wrap">
                 {advice}
               </p>
             </div>
 
-            <Button
-              onClick={fetchAlternative}
-              disabled={isLoading}
-              variant="outline"
-              size="lg"
-              className="w-full border-2 font-medium"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Generating Alternative...
-                </>
-              ) : (
-                <>
-                  <RotateCcw className="w-4 h-4 mr-2" />
-                  I Don't Have This At Home
-                </>
-              )}
-            </Button>
-
-            {error && (
-              <div className="p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
-                {error}
-              </div>
-            )}
-
             <div className="pt-4 border-t border-border">
               <p className="text-sm text-muted mb-3">
-                <strong className="text-foreground">Remember:</strong> The craving will pass within 10-15 minutes. This protocol gives your brain a pattern interrupt.
+                <strong className="text-foreground">Reflection:</strong> Take 2 minutes to absorb this insight and apply it to the rest of your day.
               </p>
               <Button onClick={handleComplete} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold">
                 <CheckCircle className="w-4 h-4 mr-2" />
-                Done - Back to regular life
+                Done - Back to Progress
               </Button>
             </div>
           </Card>

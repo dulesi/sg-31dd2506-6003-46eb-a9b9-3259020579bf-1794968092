@@ -8,6 +8,8 @@ type ProgressData = {
   panicClickDate: string
   hackRefreshesToday: number
   hackRefreshDate: string
+  assessmentsToday: number
+  assessmentDate: string
 }
 
 type CoachData = {
@@ -35,7 +37,9 @@ const DEFAULT_PROGRESS: ProgressData = {
   panicClicksToday: 0,
   panicClickDate: '',
   hackRefreshesToday: 0,
-  hackRefreshDate: ''
+  hackRefreshDate: '',
+  assessmentsToday: 0,
+  assessmentDate: ''
 }
 
 const DEFAULT_COACH: CoachData = {
@@ -60,6 +64,11 @@ export function getProgressData(): ProgressData {
   if (data.hackRefreshDate !== today) {
     data.hackRefreshesToday = 0
     data.hackRefreshDate = today
+  }
+  
+  if (data.assessmentDate !== today) {
+    data.assessmentsToday = 0
+    data.assessmentDate = today
   }
   
   return data
@@ -111,6 +120,27 @@ export function incrementHackRefresh(): { count: number; limitReached: boolean }
   return {
     count: data.hackRefreshesToday,
     limitReached: data.hackRefreshesToday > 10
+  }
+}
+
+export function incrementAssessment(): { count: number; limitReached: boolean } {
+  if (typeof window === 'undefined') return { count: 0, limitReached: false }
+  
+  const data = getProgressData()
+  const today = new Date().toISOString().split('T')[0]
+  
+  if (data.assessmentDate !== today) {
+    data.assessmentsToday = 1
+    data.assessmentDate = today
+  } else {
+    data.assessmentsToday += 1
+  }
+  
+  updateProgressData(data)
+  
+  return {
+    count: data.assessmentsToday,
+    limitReached: data.assessmentsToday > 10
   }
 }
 
