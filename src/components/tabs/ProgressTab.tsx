@@ -1,9 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import CircularProgress from '@/components/CircularProgress'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Trophy, AlertCircle, Lightbulb, Sparkles } from 'lucide-react'
+import { Trophy, AlertCircle, Lightbulb, Sparkles, RefreshCw, Loader2 } from 'lucide-react'
 import Confetti from 'react-confetti'
 import { useWindowSize } from '@/hooks/use-window-size'
 
@@ -16,7 +16,33 @@ interface ProgressTabProps {
 export default function ProgressTab({ data, onUpdate, onPanicClick }: ProgressTabProps) {
   const [showConfetti, setShowConfetti] = useState(false)
   const [showSlipOverlay, setShowSlipOverlay] = useState(false)
+  const [dailyHack, setDailyHack] = useState<string>('')
+  const [isLoadingHack, setIsLoadingHack] = useState(false)
   const { width, height } = useWindowSize()
+
+  useEffect(() => {
+    fetchDailyHack()
+  }, [])
+
+  const fetchDailyHack = async () => {
+    setIsLoadingHack(true)
+    try {
+      const response = await fetch('/api/ai-coach', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'daily-hack' })
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setDailyHack(data.advice)
+      }
+    } catch (err) {
+      setDailyHack('When a craving hits, drink a full glass of ice-cold water first. Cold water triggers your body\'s thermogenic response, temporarily suppressing appetite.')
+    } finally {
+      setIsLoadingHack(false)
+    }
+  }
 
   const handleYesClick = () => {
     const today = new Date().toISOString().split('T')[0]
@@ -139,15 +165,34 @@ export default function ProgressTab({ data, onUpdate, onPanicClick }: ProgressTa
       </Card>
 
       <Card className="p-6 shadow-md rounded-2xl bg-accent/5 border-accent/20">
-        <div className="flex items-start gap-3">
-          <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0">
-            <Lightbulb className="w-5 h-5 text-accent" />
-          </div>
-          <div className="space-y-2">
-            <h3 className="font-bold text-foreground">Daily Anti-Craving Hack</h3>
-            <p className="text-sm text-muted leading-relaxed">
-              When a craving hits, drink a full glass of ice-cold water first. Cold water triggers your body's thermogenic response, temporarily suppressing appetite and giving you 5-10 minutes to break the impulse cycle.
-            </p>
+        <div className="space-y-3">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-start gap-3 flex-1">
+              <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0">
+                <Lightbulb className="w-5 h-5 text-accent" />
+              </div>
+              <div className="space-y-2 flex-1">
+                <h3 className="font-bold text-foreground">AI Daily Anti-Craving Hack</h3>
+                {isLoadingHack ? (
+                  <div className="flex items-center gap-2 text-muted">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span className="text-sm">Loading today's hack...</span>
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted leading-relaxed whitespace-pre-wrap">
+                    {dailyHack}
+                  </p>
+                )}
+              </div>
+            </div>
+            <button
+              onClick={fetchDailyHack}
+              disabled={isLoadingHack}
+              className="p-2 rounded-lg hover:bg-accent/10 transition-colors disabled:opacity-50"
+              title="Get new hack"
+            >
+              <RefreshCw className={`w-4 h-4 text-accent ${isLoadingHack ? 'animate-spin' : ''}`} />
+            </button>
           </div>
         </div>
       </Card>
