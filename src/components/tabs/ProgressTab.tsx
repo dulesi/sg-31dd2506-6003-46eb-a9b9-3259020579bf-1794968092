@@ -6,6 +6,8 @@ import { Badge } from '@/components/ui/badge'
 import { Trophy, AlertCircle, Lightbulb, Sparkles, RefreshCw, Loader2 } from 'lucide-react'
 import Confetti from 'react-confetti'
 import { useWindowSize } from '@/hooks/use-window-size'
+import { useToast } from '@/hooks/use-toast'
+import { incrementHackRefresh } from '@/lib/localStorage'
 
 interface ProgressTabProps {
   data: any
@@ -19,12 +21,28 @@ export default function ProgressTab({ data, onUpdate, onPanicClick }: ProgressTa
   const [dailyHack, setDailyHack] = useState<string>('')
   const [isLoadingHack, setIsLoadingHack] = useState(false)
   const { width, height } = useWindowSize()
+  const { toast } = useToast()
+
+  const hackRefreshCount = data.hackRefreshesToday || 0
+  const hackLimitReached = hackRefreshCount >= 10
 
   useEffect(() => {
     fetchDailyHack()
   }, [])
 
   const fetchDailyHack = async () => {
+    const { limitReached } = incrementHackRefresh()
+    
+    if (limitReached) {
+      toast({
+        title: "Daily limit reached",
+        description: "You've reached your daily limit of 10 hacks. Pick one from today and put it into practice!",
+        duration: 5000,
+      })
+      onUpdate({ hackRefreshesToday: 11, hackRefreshDate: new Date().toISOString().split('T')[0] })
+      return
+    }
+
     setIsLoadingHack(true)
     try {
       const response = await fetch('/api/ai-coach', {
@@ -187,13 +205,18 @@ export default function ProgressTab({ data, onUpdate, onPanicClick }: ProgressTa
             </div>
             <button
               onClick={fetchDailyHack}
-              disabled={isLoadingHack}
-              className="p-2 rounded-lg hover:bg-accent/10 transition-colors disabled:opacity-50"
-              title="Get new hack"
+              disabled={isLoadingHack || hackLimitReached}
+              className="p-2 rounded-lg hover:bg-accent/10 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              title={hackLimitReached ? `Daily limit reached (${hackRefreshCount}/10)` : "Get new hack"}
             >
               <RefreshCw className={`w-4 h-4 text-accent ${isLoadingHack ? 'animate-spin' : ''}`} />
             </button>
           </div>
+          {hackLimitReached && (
+            <p className="text-xs text-muted italic">
+              Daily limit reached ({hackRefreshCount}/10) - Pick one and practice it!
+            </p>
+          )}
         </div>
       </Card>
 
