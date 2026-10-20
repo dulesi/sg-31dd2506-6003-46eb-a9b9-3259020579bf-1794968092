@@ -1,8 +1,8 @@
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { User, Database, Trophy, RotateCcw, Shield, CheckCircle } from 'lucide-react'
-import { useState } from 'react'
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
+import { Trophy, Calendar, CheckCircle, RotateCcw, Share2, Instagram, ExternalLink } from 'lucide-react'
+import { shareProgress } from '@/lib/share'
 
 interface AccountTabProps {
   data: any
@@ -10,142 +10,151 @@ interface AccountTabProps {
   onReset: () => void
 }
 
-export default function AccountTab({ data, onReset }: AccountTabProps) {
-  const [showResetConfirm, setShowResetConfirm] = useState(false)
-
-  const handleResetConfirm = () => {
-    onReset()
-    setShowResetConfirm(false)
-  }
-
+export default function AccountTab({ data, onUpdate, onReset }: AccountTabProps) {
   return (
-    <div className="p-4 space-y-6">
+    <div className="p-4 space-y-4">
       <div className="pt-2 pb-4">
         <h1 className="text-2xl font-bold text-foreground">Account</h1>
-        <p className="text-sm text-muted">Manage your program</p>
+        <p className="text-sm text-muted">Your profile & settings</p>
       </div>
 
-      <Card className="p-6 shadow-md rounded-2xl">
-        <div className="flex items-center gap-4 mb-6">
-          <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-            <User className="w-8 h-8 text-primary" />
-          </div>
-          <div>
-            <h2 className="text-xl font-bold text-foreground">Your Profile</h2>
-            <Badge variant="outline" className="mt-1 bg-primary/10 text-primary border-primary/20">
-              Active Member
-            </Badge>
-          </div>
-        </div>
-
-        <div className="space-y-3">
-          <div className="flex items-center justify-between p-3 rounded-lg bg-muted/5">
-            <div className="flex items-center gap-3">
-              <Database className="w-5 h-5 text-muted" />
-              <span className="text-sm font-medium text-foreground">Data Storage</span>
-            </div>
-            <Badge variant="outline" className="text-xs">
-              Local Mode
-            </Badge>
-          </div>
-
-          <div className="flex items-center justify-between p-3 rounded-lg bg-muted/5">
-            <div className="flex items-center gap-3">
-              <CheckCircle className="w-5 h-5 text-primary" />
-              <span className="text-sm font-medium text-foreground">Program Status</span>
-            </div>
-            <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 text-xs">
-              30-Day Active
-            </Badge>
-          </div>
-        </div>
-      </Card>
-
-      <Card className="p-6 shadow-md rounded-2xl">
-        <div className="flex items-center gap-3 mb-4">
-          <Trophy className="w-6 h-6 text-accent" />
-          <h3 className="text-lg font-bold text-foreground">Your Progress</h3>
-        </div>
-
+      <Card className="p-6 shadow-md rounded-2xl space-y-4">
+        <h2 className="text-lg font-bold text-foreground">Progress Summary</h2>
+        
         <div className="grid grid-cols-2 gap-4">
-          <div className="p-4 rounded-xl bg-primary/5 border border-primary/20">
-            <div className="text-3xl font-bold text-primary mb-1">{data.currentDay}</div>
-            <div className="text-xs text-muted font-medium">Current Day</div>
-          </div>
-
-          <div className="p-4 rounded-xl bg-primary/5 border border-primary/20">
-            <div className="text-3xl font-bold text-primary mb-1">{data.currentStreak}</div>
-            <div className="text-xs text-muted font-medium">Current Streak</div>
-          </div>
-
-          <div className="p-4 rounded-xl bg-accent/5 border border-accent/20">
-            <div className="text-3xl font-bold text-accent mb-1">{data.bestStreak}</div>
-            <div className="text-xs text-muted font-medium">Best Streak</div>
-          </div>
-
-          <div className="p-4 rounded-xl bg-accent/5 border border-accent/20">
-            <div className="text-3xl font-bold text-accent mb-1">{data.totalYesCheckins}</div>
-            <div className="text-xs text-muted font-medium">Total Wins</div>
-          </div>
-        </div>
-      </Card>
-
-      <Card className="p-6 shadow-md rounded-2xl bg-gradient-to-br from-primary/5 to-accent/5 border-primary/20">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
-            <Shield className="w-6 h-6 text-primary" />
-          </div>
-          <div>
-            <h3 className="text-lg font-bold text-foreground">Our Commitment to You</h3>
-            <p className="text-xs text-muted">FREE RESTART GUARANTEE</p>
-          </div>
-        </div>
-
-        <p className="text-sm text-muted leading-relaxed mb-6">
-          We believe in your transformation. If you need to start over, you can reset your 30-day journey anytime, completely free. No penalties, no questions asked.
-        </p>
-
-        <Button
-          onClick={() => setShowResetConfirm(true)}
-          variant="outline"
-          size="lg"
-          className="w-full border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground font-bold"
-        >
-          <RotateCcw className="w-5 h-5 mr-2" />
-          RESTART MY 30 DAYS FOR FREE
-        </Button>
-      </Card>
-
-      {showResetConfirm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <Card className="p-6 max-w-sm shadow-2xl rounded-2xl space-y-4">
-            <div className="text-center space-y-3">
-              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
-                <RotateCcw className="w-8 h-8 text-primary" />
-              </div>
-              <h3 className="text-xl font-bold text-foreground">Reset Your Journey?</h3>
-              <p className="text-sm text-muted leading-relaxed">
-                This will reset your current day and streak back to Day 1. Your best streak record and shopping list will be preserved.
-              </p>
-              <div className="grid grid-cols-2 gap-3 pt-2">
-                <Button
-                  onClick={() => setShowResetConfirm(false)}
-                  variant="outline"
-                  className="font-bold"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={handleResetConfirm}
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold"
-                >
-                  Yes, Reset
-                </Button>
-              </div>
+          <div className="p-4 rounded-xl bg-primary/10 border border-primary/20">
+            <div className="flex items-center gap-2 mb-2">
+              <Calendar className="w-5 h-5 text-primary" />
+              <span className="text-sm font-medium text-muted">Current Day</span>
             </div>
-          </Card>
+            <p className="text-2xl font-bold text-foreground">{data.currentDay}</p>
+          </div>
+
+          <div className="p-4 rounded-xl bg-primary/10 border border-primary/20">
+            <div className="flex items-center gap-2 mb-2">
+              <Trophy className="w-5 h-5 text-accent" />
+              <span className="text-sm font-medium text-muted">Best Streak</span>
+            </div>
+            <p className="text-2xl font-bold text-foreground">{data.bestStreak}</p>
+          </div>
+
+          <div className="p-4 rounded-xl bg-primary/10 border border-primary/20">
+            <div className="flex items-center gap-2 mb-2">
+              <CheckCircle className="w-5 h-5 text-primary" />
+              <span className="text-sm font-medium text-muted">Current Streak</span>
+            </div>
+            <p className="text-2xl font-bold text-foreground">{data.currentStreak}</p>
+          </div>
+
+          <div className="p-4 rounded-xl bg-primary/10 border border-primary/20">
+            <div className="flex items-center gap-2 mb-2">
+              <CheckCircle className="w-5 h-5 text-primary" />
+              <span className="text-sm font-medium text-muted">Total Check-ins</span>
+            </div>
+            <p className="text-2xl font-bold text-foreground">{data.totalYesCheckins}</p>
+          </div>
         </div>
-      )}
+      </Card>
+
+      <Card className="p-6 shadow-md rounded-2xl space-y-4">
+        <h2 className="text-lg font-bold text-foreground">Share & Connect</h2>
+        
+        <button
+          onClick={() => shareProgress(data.currentStreak || 0)}
+          className="w-full p-4 rounded-xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all text-left flex items-center gap-4 group"
+        >
+          <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+            <Share2 className="w-6 h-6 text-primary" />
+          </div>
+          <div className="flex-1">
+            <div className="font-bold text-foreground">Share AdioSugar with a Friend</div>
+            <div className="text-sm text-muted">Help a friend beat sugar cravings</div>
+          </div>
+        </button>
+      </Card>
+
+      <Card className="p-6 shadow-md rounded-2xl space-y-4">
+        <h2 className="text-lg font-bold text-foreground">Join Our Community</h2>
+        
+        <div className="space-y-3">
+          <a
+            href="https://instagram.com/adiosugar"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full p-4 rounded-xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all flex items-center gap-4 group"
+          >
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 flex items-center justify-center flex-shrink-0">
+              <Instagram className="w-6 h-6 text-white" />
+            </div>
+            <div className="flex-1">
+              <div className="font-bold text-foreground">Instagram</div>
+              <div className="text-sm text-muted">@adiosugar</div>
+            </div>
+            <ExternalLink className="w-5 h-5 text-muted group-hover:text-primary" />
+          </a>
+
+          <a
+            href="https://tiktok.com/@adiosugar"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full p-4 rounded-xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all flex items-center gap-4 group"
+          >
+            <div className="w-12 h-12 rounded-full bg-black flex items-center justify-center flex-shrink-0">
+              <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+              </svg>
+            </div>
+            <div className="flex-1">
+              <div className="font-bold text-foreground">TikTok</div>
+              <div className="text-sm text-muted">@adiosugar</div>
+            </div>
+            <ExternalLink className="w-5 h-5 text-muted group-hover:text-primary" />
+          </a>
+
+          <a
+            href="https://adiosugar.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full p-4 rounded-xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all flex items-center gap-4 group"
+          >
+            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <ExternalLink className="w-6 h-6 text-primary" />
+            </div>
+            <div className="flex-1">
+              <div className="font-bold text-foreground">Official Website</div>
+              <div className="text-sm text-muted">adiosugar.com</div>
+            </div>
+            <ExternalLink className="w-5 h-5 text-muted group-hover:text-primary" />
+          </a>
+        </div>
+      </Card>
+
+      <Card className="p-6 shadow-md rounded-2xl space-y-4">
+        <h2 className="text-lg font-bold text-foreground">Program Settings</h2>
+        
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="outline" className="w-full border-2 border-destructive/30 text-destructive hover:bg-destructive/10">
+              <RotateCcw className="w-4 h-4 mr-2" />
+              Reset Progress & Start Over
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Start Fresh Journey?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This will reset your current progress, streak, and stats. Your knowledge and experience remain with you. This is a chance to begin again with everything you've learned.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={onReset} className="bg-destructive hover:bg-destructive/90">
+                Yes, Reset Everything
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </Card>
     </div>
   )
 }

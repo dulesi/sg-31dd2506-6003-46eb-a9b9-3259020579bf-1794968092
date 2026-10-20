@@ -3,11 +3,12 @@ import CircularProgress from '@/components/CircularProgress'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Trophy, AlertCircle, Lightbulb, Sparkles, RefreshCw, Loader2 } from 'lucide-react'
+import { Trophy, AlertCircle, Lightbulb, Sparkles, RefreshCw, Loader2, Share2 } from 'lucide-react'
 import Confetti from 'react-confetti'
 import { useWindowSize } from '@/hooks/use-window-size'
 import { useToast } from '@/hooks/use-toast'
 import { incrementHackRefresh } from '@/lib/localStorage'
+import { shareProgress } from '@/lib/share'
 
 interface ProgressTabProps {
   data: any
@@ -125,6 +126,18 @@ export default function ProgressTab({ data, onUpdate, onPanicClick }: ProgressTa
               </div>
             )}
           </div>
+
+          {data.currentStreak > 0 && (
+            <Button
+              onClick={() => shareProgress(data.currentStreak)}
+              variant="outline"
+              size="sm"
+              className="mt-3 border-primary/30 text-primary hover:bg-primary/5"
+            >
+              <Share2 className="w-4 h-4 mr-2" />
+              Share Progress
+            </Button>
+          )}
         </div>
       </Card>
 

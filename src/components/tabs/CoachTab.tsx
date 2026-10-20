@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { ChevronRight, Loader2, CheckCircle, Sparkles } from 'lucide-react'
+import { ChevronRight, Loader2, CheckCircle, Sparkles, Share2 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { incrementAssessment } from '@/lib/localStorage'
+import { shareProgress } from '@/lib/share'
 
 interface CoachTabProps {
   data: any
@@ -340,10 +341,18 @@ export default function CoachTab({ data, onUpdate, triggerStart, onTriggerClear,
               </div>
             )}
 
-            <div className="pt-4 border-t border-border">
+            <div className="pt-4 border-t border-border space-y-3">
               <Button onClick={handleComplete} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold">
                 <CheckCircle className="w-4 h-4 mr-2" />
                 Done - Back to Progress
+              </Button>
+              <Button
+                onClick={() => shareProgress(data.currentStreak || 0)}
+                variant="outline"
+                className="w-full border-primary/30 text-primary hover:bg-primary/5"
+              >
+                <Share2 className="w-4 h-4 mr-2" />
+                Share Victory
               </Button>
             </div>
           </Card>
