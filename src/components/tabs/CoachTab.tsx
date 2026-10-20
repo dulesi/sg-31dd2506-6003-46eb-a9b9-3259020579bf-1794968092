@@ -278,26 +278,63 @@ export default function CoachTab({ data, onUpdate, triggerStart, onTriggerClear,
         </div>
       )}
 
-      {step === 4 && advice && (
+      {step === 4 && insight && (
         <div className="space-y-4">
-          <Card className="p-6 shadow-md rounded-2xl space-y-4">
+          <Card className="p-6 shadow-md rounded-2xl space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold text-foreground">Your Personalized Insight</h2>
+              <h2 className="text-lg font-bold text-foreground">Your Personal Insight</h2>
               <Badge variant="outline" className="text-primary border-primary">
                 Complete
               </Badge>
             </div>
 
-            <div className="p-6 rounded-xl bg-primary/10 border-2 border-primary/20">
-              <p className="text-base text-foreground leading-relaxed whitespace-pre-wrap">
-                {advice}
-              </p>
-            </div>
+            {typeof insight === 'object' && insight.biology && insight.community && insight.action ? (
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-foreground font-semibold">
+                    <span className="text-xl">🧠</span>
+                    <h3 className="text-base">What's Happening</h3>
+                  </div>
+                  <p className="text-sm text-muted leading-relaxed pl-7">
+                    {insight.biology}
+                  </p>
+                </div>
+
+                <div className="border-t border-border pt-4 space-y-2">
+                  <div className="flex items-center gap-2 text-foreground font-semibold">
+                    <span className="text-xl">👥</span>
+                    <h3 className="text-base">Community Insight</h3>
+                  </div>
+                  <p className="text-sm text-muted leading-relaxed pl-7">
+                    {insight.community}
+                  </p>
+                </div>
+
+                <div className="border-t border-border pt-4 space-y-2">
+                  <div className="flex items-center gap-2 text-foreground font-semibold">
+                    <span className="text-xl">🎯</span>
+                    <h3 className="text-base">Today's Action</h3>
+                  </div>
+                  <p className="text-sm text-muted leading-relaxed pl-7">
+                    {insight.action}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="p-6 rounded-xl bg-primary/10 border-2 border-primary/20">
+                <p className="text-base font-medium text-foreground leading-relaxed whitespace-pre-wrap">
+                  {typeof insight === 'string' ? insight : JSON.stringify(insight)}
+                </p>
+              </div>
+            )}
+
+            {error && (
+              <div className="p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
+                {error}
+              </div>
+            )}
 
             <div className="pt-4 border-t border-border">
-              <p className="text-sm text-muted mb-3">
-                <strong className="text-foreground">Reflection:</strong> Take 2 minutes to absorb this insight and apply it to the rest of your day.
-              </p>
               <Button onClick={handleComplete} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold">
                 <CheckCircle className="w-4 h-4 mr-2" />
                 Done - Back to Progress

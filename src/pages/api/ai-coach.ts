@@ -77,8 +77,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       temperature = 0.7
       maxTokens = 250
-      systemPrompt = 'You are an empathetic behavioral coach for the "AdioSugar" app. Based on the user\'s emotional/physical check-in, generate a highly structured 3-part response:\n1. Validation & Biology: Briefly validate their feeling (whether positive, neutral, or negative) and explain the underlying dopamine/blood sugar connection in 2 sentences.\n2. Perspective / Community Note: Share an insightful perspective or reference how other sugar-free habit builders manage this feeling.\n3. Actionable Focus: Provide one clear 2-minute mindset shift or practical action for the rest of the day.'
-      userPrompt = `User check-in: Feeling "${feeling}", started "${timing}", needs "${supportType}". Provide structured guidance.`
+      systemPrompt = 'You are an empathetic behavioral coach for the "AdioSugar" app. Generate a structured JSON response with exactly 3 keys: "biology", "community", "action". Do NOT use markdown formatting or numbered headers. Keep each section concise and actionable:\n- "biology": 2 sentences validating their feeling and explaining the dopamine/blood sugar connection\n- "community": 1-2 sentences sharing how others handle this state\n- "action": 1 clear 2-minute mindset shift or practical action\n\nOutput ONLY valid JSON, no additional text.'
+      userPrompt = `User check-in: Feeling "${feeling}", started "${timing}", needs "${supportType}". Return structured JSON response.`
     } else {
       return res.status(400).json({ error: 'Invalid type' })
     }
@@ -109,6 +109,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (!advice) {
       throw new Error('No advice generated')
+    }
+
+    if (type === 'mindset-assessment') {
+      try {
+        const jsonAdvice = JSON.parse(advice)
+        return res.status(200).json({ advice: jsonAdvice })
+      } catch {
+        return res.status(200).json({ advice })
+      }
     }
 
     return res.status(200).json({ advice })
