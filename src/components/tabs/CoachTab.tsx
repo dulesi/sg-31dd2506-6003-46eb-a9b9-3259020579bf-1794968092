@@ -2,13 +2,14 @@ import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { UtensilsCrossed, Brain, Zap, Smartphone, Coffee, ChevronRight, RotateCcw, Loader2 } from 'lucide-react'
+import { UtensilsCrossed, Brain, Zap, Smartphone, Coffee, ChevronRight, RotateCcw, Loader2, CheckCircle } from 'lucide-react'
 
 interface CoachTabProps {
   data: any
   onUpdate: (updates: any) => void
   triggerStart: boolean
   onTriggerClear: () => void
+  onComplete?: () => void
 }
 
 const triggers = [
@@ -26,7 +27,7 @@ const intensities = [
   { id: 4, label: 'EMERGENCY!', subtitle: 'Dying for sugar, about to break!', color: 'bg-red-100 text-red-700 border-red-300' }
 ]
 
-export default function CoachTab({ data, onUpdate, triggerStart, onTriggerClear }: CoachTabProps) {
+export default function CoachTab({ data, onUpdate, triggerStart, onTriggerClear, onComplete }: CoachTabProps) {
   const [step, setStep] = useState(0)
   const [selectedTrigger, setSelectedTrigger] = useState<string | null>(null)
   const [selectedIntensity, setSelectedIntensity] = useState<number | null>(null)
@@ -99,11 +100,18 @@ export default function CoachTab({ data, onUpdate, triggerStart, onTriggerClear 
   }
 
   const handleReset = () => {
-    setStep(1)
+    setStep(0)
     setSelectedTrigger(null)
     setSelectedIntensity(null)
     setAdvice('')
     setError(null)
+  }
+
+  const handleComplete = () => {
+    handleReset()
+    if (onComplete) {
+      onComplete()
+    }
   }
 
   return (
@@ -248,8 +256,9 @@ export default function CoachTab({ data, onUpdate, triggerStart, onTriggerClear 
               <p className="text-sm text-muted mb-3">
                 <strong className="text-foreground">Remember:</strong> The craving will pass within 10-15 minutes. This protocol gives your brain a pattern interrupt.
               </p>
-              <Button onClick={handleReset} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold">
-                Done - Start New Session
+              <Button onClick={handleComplete} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold">
+                <CheckCircle className="w-4 h-4 mr-2" />
+                Done - Back to regular life
               </Button>
             </div>
           </Card>

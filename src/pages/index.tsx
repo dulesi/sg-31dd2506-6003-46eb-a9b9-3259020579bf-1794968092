@@ -63,6 +63,7 @@ export default function Home() {
           onUpdate={handleProgressUpdate}
           triggerStart={triggerCoach}
           onTriggerClear={() => setTriggerCoach(false)}
+          onComplete={() => setActiveTab('progress')}
         />
       )}
       {activeTab === 'health' && (
