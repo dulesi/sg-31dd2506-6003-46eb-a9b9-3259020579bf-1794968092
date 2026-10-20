@@ -2,63 +2,108 @@ type ProgressData = {
   currentDay: number
   currentStreak: number
   bestStreak: number
-  lastCheckIn: string | null
+  lastCheckIn: string
   totalYesCheckins: number
-  cravingCoachStep: number
+  panicClicksToday: number
+  panicClickDate: string
+}
+
+type CoachData = {
+  currentCoachStep: number
   selectedTrigger: string | null
-  selectedIntensity: string | null
-  shoppingList: Record<string, boolean>
+  selectedIntensity: number | null
 }
 
-const STORAGE_KEY = 'adiosugar_progress'
-
-export const getProgressData = (): ProgressData => {
-  if (typeof window === 'undefined') {
-    return getDefaultData()
-  }
-
-  const stored = localStorage.getItem(STORAGE_KEY)
-  if (!stored) {
-    return getDefaultData()
-  }
-
-  try {
-    return JSON.parse(stored)
-  } catch {
-    return getDefaultData()
-  }
+type ShoppingList = {
+  [key: string]: boolean
 }
 
-export const saveProgressData = (data: Partial<ProgressData>) => {
+const STORAGE_KEYS = {
+  PROGRESS: 'adiosugar_progress',
+  COACH: 'adiosugar_coach',
+  SHOPPING: 'adiosugar_shopping'
+}
+
+const DEFAULT_PROGRESS: ProgressData = {
+  currentDay: 1,
+  currentStreak: 0,
+  bestStreak: 0,
+  lastCheckIn: '',
+  totalYesCheckins: 0,
+  panicClicksToday: 0,
+  panicClickDate: ''
+}
+
+const DEFAULT_COACH: CoachData = {
+  currentCoachStep: 0,
+  selectedTrigger: null,
+  selectedIntensity: null
+}
+
+export function getProgressData(): ProgressData {
+  if (typeof window === 'undefined') return DEFAULT_PROGRESS
+  const stored = localStorage.getItem(STORAGE_KEYS.PROGRESS)
+  if (!stored) return DEFAULT_PROGRESS
+  
+  const data = JSON.parse(stored)
+  const today = new Date().toISOString().split('T')[0]
+  
+  if (data.panicClickDate !== today) {
+    data.panicClicksToday = 0
+    data.panicClickDate = today
+  }
+  
+  return data
+}
+
+export function updateProgressData(updates: Partial<ProgressData>): void {
   if (typeof window === 'undefined') return
-
   const current = getProgressData()
-  const updated = { ...current, ...data }
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
+  const updated = { ...current, ...updates }
+  localStorage.setItem(STORAGE_KEYS.PROGRESS, JSON.stringify(updated))
 }
 
-export const resetProgress = () => {
-  if (typeof window === 'undefined') return
-
-  const current = getProgressData()
-  const reset: ProgressData = {
-    ...getDefaultData(),
-    bestStreak: current.bestStreak,
-    shoppingList: current.shoppingList
+export function incrementPanicClick(): { count: number; limitReached: boolean } {
+  if (typeof window === 'undefined') return { count: 0, limitReached: false }
+  
+  const data = getProgressData()
+  const today = new Date().toISOString().split('T')[0]
+  
+  if (data.panicClickDate !== today) {
+    data.panicClicksToday = 1
+    data.panicClickDate = today
+  } else {
+    data.panicClicksToday += 1
   }
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(reset))
-}
-
-function getDefaultData(): ProgressData {
+  
+  updateProgressData(data)
+  
   return {
-    currentDay: 1,
-    currentStreak: 0,
-    bestStreak: 0,
-    lastCheckIn: null,
-    totalYesCheckins: 0,
-    cravingCoachStep: 0,
-    selectedTrigger: null,
-    selectedIntensity: null,
-    shoppingList: {}
+    count: data.panicClicksToday,
+    limitReached: data.panicClicksToday > 10
   }
+}
+
+export function getCoachData(): CoachData {
+  if (typeof window === 'undefined') return DEFAULT_COACH
+  const stored = localStorage.getItem(STORAGE_KEYS.COACH)
+  return stored ? JSON.parse(stored) : DEFAULT_COACH
+}
+
+export function updateCoachData(updates: Partial<CoachData>): void {
+  if (typeof window === 'undefined') return
+  const current = getCoachData()
+  const updated = { ...current, ...updates }
+  localStorage.setItem(STORAGE_KEYS.COACH, JSON.stringify(updated))
+}
+
+export function getShoppingList(): ShoppingList {
+  if (typeof window === 'undefined') return {}
+  const stored = localStorage.getItem(STORAGE_KEYS.SHOPPING)
+  return stored ? JSON.parse(stored) : {}
+}
+
+export function updateShoppingList(updates: ShoppingList): void {
+  if (typeof window === 'undefined') return
+  localStorage.setItem(STORAGE_KEYS.SHOPPING, JSON.stringify(updates))
 }
