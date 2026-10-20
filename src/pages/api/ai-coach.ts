@@ -24,9 +24,15 @@ export default async function handler(
   try {
     let systemPrompt = ''
     let userPrompt = ''
+    let temperature = 0.8
+    let maxTokens = 150
 
     if (type === 'craving') {
-      systemPrompt = `You are an expert sugar detox coach. Provide ONE specific, actionable 15-20 second intervention to help someone overcome a sugar craving RIGHT NOW. Be direct, supportive, and practical. Format: Single clear instruction with reasoning in 2-3 sentences max.`
+      temperature = 0.6
+      maxTokens = 100
+      
+      systemPrompt = `You are an elite metabolic health & sugar detox coach for the "AdioSugar" app. Provide ONE specific, actionable 15-20 second intervention to stop a sugar craving RIGHT NOW. Be direct, compassionate, and tactical. Never suggest sugary foods or complex prep.
+Format: Single bold action step, followed by 1 short sentence explaining the neuro-chemical mechanism. Maximum 40 words.`
       
       const triggerContext = {
         hunger: 'genuine hunger or skipped meal',
@@ -43,13 +49,19 @@ export default async function handler(
         4: 'EMERGENCY (about to break)'
       }[intensity || 2]
 
-      userPrompt = `Person experiencing sugar craving from ${triggerContext}, intensity level: ${intensityLevel}. Give ONE tactical intervention they can do in 15-20 seconds.`
+      userPrompt = `User is experiencing a sugar craving from ${triggerContext}, intensity level: ${intensityLevel}. Give ONE tactical intervention they can execute immediately in 15-20 seconds.`
     } else if (type === 'daily-hack') {
-      systemPrompt = `You are a behavioral psychology expert specializing in habit formation and sugar addiction. Provide ONE daily 15-second psychological technique to prevent sugar cravings. Be specific, evidence-based, and immediately actionable.`
-      userPrompt = `Generate a unique daily anti-craving psychological hack that takes 15 seconds or less to implement. Focus on cognitive reframing, sensory tricks, or quick physical interventions.`
+      temperature = 0.85
+      maxTokens = 100
+      
+      systemPrompt = `You are a behavioral psychology expert specializing in dopamine management and habit disruption for the "AdioSugar" app. Provide ONE daily 15-second psychological technique to prevent sugar cravings before they start. Focus on sensory tricks, cognitive reframing, or quick nervous-system resets. Be specific and immediate. Maximum 35 words.`
+      userPrompt = `Generate a unique, highly practical anti-craving psychological hack that takes under 15 seconds to apply today.`
     } else if (type === 'alternative') {
-      systemPrompt = `You are a crisis intervention coach. The person doesn't have the ingredients/items for the suggested intervention. Provide an INSTANT zero-equipment alternative using only their body, breath, or imagination. Must be doable anywhere, anytime.`
-      userPrompt = `Original advice was: "${currentAdvice}". They don't have access to those items. Give a zero-equipment alternative intervention (breathing exercise, physical movement, mental technique) that takes 15-30 seconds.`
+      temperature = 0.7
+      maxTokens = 100
+      
+      systemPrompt = `You are an emergency crisis intervention coach. The user does NOT have any ingredients, drinks, or items available. Provide a 100% zero-equipment alternative intervention using ONLY their body, breath, or mental focus. Do NOT repeat or reference the previous item-based advice. Must be doable anywhere, immediately. Maximum 35 words.`
+      userPrompt = `Previous advice was: "${currentAdvice}". The user has NO items/ingredients. Give a pure zero-equipment physical, breathwork, or mental intervention they can do in 15 seconds instead.`
     }
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -64,8 +76,8 @@ export default async function handler(
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
         ],
-        max_tokens: 150,
-        temperature: 0.8
+        max_tokens: maxTokens,
+        temperature: temperature
       })
     })
 
