@@ -42,23 +42,21 @@ const styleLabels: Record<string, string> = {
 const detectOSAndRedirect = () => {
   const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera
 
-  // iOS detection
   if (/iPad|iPhone|iPod/.test(userAgent) && !(window as any).MSStream) {
     window.location.href = 'https://apps.apple.com/app/adiosugar'
     return
   }
 
-  // Android detection
   if (/android/i.test(userAgent)) {
     window.location.href = 'https://play.google.com/store/apps/details?id=com.adiosugar'
     return
   }
 
-  // Desktop or other - redirect to web app
   window.location.href = '/app'
 }
 
 export default function LandingPage() {
+  const [showHero, setShowHero] = useState(true)
   const [quizStep, setQuizStep] = useState(0)
   const [answers, setAnswers] = useState<QuizAnswer>({})
   const [isAnalyzing, setIsAnalyzing] = useState(false)
@@ -96,11 +94,9 @@ export default function LandingPage() {
     }
   }
 
-  const scrollToQuiz = () => {
+  const startQuiz = () => {
+    setShowHero(false)
     setQuizStep(1)
-    setTimeout(() => {
-      document.getElementById('quiz-section')?.scrollIntoView({ behavior: 'smooth' })
-    }, 100)
   }
 
   const step1Options = [
@@ -134,42 +130,40 @@ export default function LandingPage() {
     <div className="min-h-screen bg-background overflow-x-hidden">
       <div className="w-full max-w-[420px] mx-auto bg-background shadow-2xl min-h-screen">
         <div className="px-4 py-12 space-y-8">
-          <div className="text-center space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20">
-              <Sparkles className="w-3.5 h-3.5 text-primary" />
-              <span className="text-xs font-semibold text-primary">AI-Powered Coach</span>
+          {showHero && quizStep === 0 && (
+            <div className="text-center space-y-4 animate-in fade-in duration-500">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20">
+                <Sparkles className="w-3.5 h-3.5 text-primary" />
+                <span className="text-xs font-semibold text-primary">AI-Powered Coach</span>
+              </div>
+              
+              <h1 className="text-2xl font-bold text-foreground leading-tight">
+                Break Free from Sugar Cravings — Without Restrictive Diets or Endless Willpower
+              </h1>
+              
+              <p className="text-sm text-muted leading-relaxed">
+                A lightweight, AI-powered behavioral coach that helps you regain control, boost your energy, and rebuild healthy habits in 15 seconds a day.
+              </p>
+
+              <Button
+                onClick={startQuiz}
+                size="lg"
+                className="w-full h-12 text-base font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg rounded-xl mt-4"
+              >
+                Take the 60-Second Quiz →
+              </Button>
+
+              <p className="text-xs text-muted pt-2">
+                Already have an account?{' '}
+                <Link href="/app" className="text-primary hover:underline font-semibold">
+                  Sign In
+                </Link>
+              </p>
             </div>
-            
-            <h1 className="text-2xl font-bold text-foreground leading-tight">
-              Break Free from Sugar Cravings — Without Restrictive Diets or Endless Willpower
-            </h1>
-            
-            <p className="text-sm text-muted leading-relaxed">
-              A lightweight, AI-powered behavioral coach that helps you regain control, boost your energy, and rebuild healthy habits in 15 seconds a day.
-            </p>
+          )}
 
-            <Button
-              onClick={scrollToQuiz}
-              size="lg"
-              className="w-full h-12 text-base font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg rounded-xl mt-4"
-            >
-              Take the 60-Second Quiz →
-            </Button>
-
-            <p className="text-xs text-muted pt-2">
-              Already have an account?{' '}
-              <Link href="/app" className="text-primary hover:underline font-semibold">
-                Sign In
-              </Link>
-            </p>
-          </div>
-
-          <div id="quiz-section" className="space-y-6">
-            {quizStep === 0 && (
-              <div className="text-center py-4 opacity-0"></div>
-            )}
-
-            {quizStep === 1 && (
+          {quizStep === 1 && !isAnalyzing && !showResults && (
+            <div className="animate-in fade-in duration-500">
               <Card className="p-6 shadow-lg rounded-2xl border-2 border-border">
                 <div className="text-center space-y-3 mb-5">
                   <Badge variant="outline" className="border-primary/30 text-primary bg-primary/5 text-xs font-semibold">
@@ -193,9 +187,11 @@ export default function LandingPage() {
                   ))}
                 </div>
               </Card>
-            )}
+            </div>
+          )}
 
-            {quizStep === 2 && (
+          {quizStep === 2 && !isAnalyzing && !showResults && (
+            <div className="animate-in fade-in duration-500">
               <Card className="p-6 shadow-lg rounded-2xl border-2 border-border">
                 <div className="text-center space-y-3 mb-5">
                   <Badge variant="outline" className="border-primary/30 text-primary bg-primary/5 text-xs font-semibold">
@@ -219,9 +215,11 @@ export default function LandingPage() {
                   ))}
                 </div>
               </Card>
-            )}
+            </div>
+          )}
 
-            {quizStep === 3 && (
+          {quizStep === 3 && !isAnalyzing && !showResults && (
+            <div className="animate-in fade-in duration-500">
               <Card className="p-6 shadow-lg rounded-2xl border-2 border-border">
                 <div className="text-center space-y-3 mb-5">
                   <Badge variant="outline" className="border-primary/30 text-primary bg-primary/5 text-xs font-semibold">
@@ -245,9 +243,11 @@ export default function LandingPage() {
                   ))}
                 </div>
               </Card>
-            )}
+            </div>
+          )}
 
-            {quizStep === 4 && !isAnalyzing && !showResults && (
+          {quizStep === 4 && !isAnalyzing && !showResults && (
+            <div className="animate-in fade-in duration-500">
               <Card className="p-6 shadow-lg rounded-2xl border-2 border-border">
                 <div className="text-center space-y-3 mb-5">
                   <Badge variant="outline" className="border-primary/30 text-primary bg-primary/5 text-xs font-semibold">
@@ -271,9 +271,11 @@ export default function LandingPage() {
                   ))}
                 </div>
               </Card>
-            )}
+            </div>
+          )}
 
-            {isAnalyzing && (
+          {isAnalyzing && (
+            <div className="animate-in fade-in duration-500">
               <Card className="p-10 shadow-lg rounded-2xl border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
                 <div className="text-center space-y-5">
                   <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto ring-4 ring-primary/5">
@@ -289,109 +291,113 @@ export default function LandingPage() {
                   </div>
                 </div>
               </Card>
-            )}
+            </div>
+          )}
 
-            {showResults && (
-              <div className="space-y-6">
-                <Card className="p-6 shadow-lg rounded-2xl border-2 border-primary/30 bg-gradient-to-br from-primary/5 via-transparent to-accent/5">
-                  <div className="text-center space-y-3 mb-5">
-                    <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto ring-4 ring-primary/10">
-                      <CheckCircle className="w-7 h-7 text-primary" />
+          {showResults && (
+            <div className="space-y-6 animate-in fade-in duration-500">
+              <Card className="p-6 shadow-lg rounded-2xl border-2 border-primary/30 bg-gradient-to-br from-primary/5 via-transparent to-accent/5">
+                <div className="text-center space-y-3 mb-5">
+                  <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto ring-4 ring-primary/10">
+                    <CheckCircle className="w-7 h-7 text-primary" />
+                  </div>
+                  <h2 className="text-xl font-bold text-foreground">
+                    Your Sugar Dependency Profile is Ready
+                  </h2>
+                  <p className="text-sm text-muted">
+                    Based on your answers, here's how AdioSugar can help you break free
+                  </p>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="p-3.5 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                      <Zap className="w-5 h-5 text-primary" />
                     </div>
-                    <h2 className="text-xl font-bold text-foreground">
-                      Your Sugar Dependency Profile is Ready
-                    </h2>
-                    <p className="text-sm text-muted">
-                      Based on your answers, here's how AdioSugar can help you break free
+                    <div className="flex-1 pt-1">
+                      <h4 className="font-bold text-foreground text-sm mb-0.5">Panic Button - Instant SOS</h4>
+                      <p className="text-xs text-muted leading-relaxed">Get 15-second emergency interventions when cravings hit hardest</p>
+                    </div>
+                  </div>
+
+                  <div className="p-3.5 rounded-xl bg-gradient-to-br from-accent/10 to-accent/5 border border-accent/20 flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0">
+                      <Brain className="w-5 h-5 text-accent" />
+                    </div>
+                    <div className="flex-1 pt-1">
+                      <h4 className="font-bold text-foreground text-sm mb-0.5">Craving Coach - Personalized Guidance</h4>
+                      <p className="text-xs text-muted leading-relaxed">AI-powered insights matching your exact triggers and support style</p>
+                    </div>
+                  </div>
+
+                  <div className="p-3.5 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                      <Heart className="w-5 h-5 text-primary" />
+                    </div>
+                    <div className="flex-1 pt-1">
+                      <h4 className="font-bold text-foreground text-sm mb-0.5">30-Day Transformation</h4>
+                      <p className="text-xs text-muted leading-relaxed">Daily assistant for habit reprogramming without restrictive diets</p>
+                    </div>
+                  </div>
+
+                  <div className="p-3.5 rounded-xl bg-gradient-to-br from-accent/10 to-accent/5 border border-accent/20 flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0">
+                      <Shield className="w-5 h-5 text-accent" />
+                    </div>
+                    <div className="flex-1 pt-1">
+                      <h4 className="font-bold text-foreground text-sm mb-0.5">Your Lifetime Ally</h4>
+                      <p className="text-xs text-muted leading-relaxed">Unlimited access forever, even after completing your initial 30 days</p>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="p-6 shadow-lg rounded-2xl bg-gradient-to-br from-primary/5 to-transparent border-2 border-primary/30">
+                <div className="text-center space-y-4">
+                  <h3 className="text-lg font-bold text-foreground">
+                    Start Your 30-Day Journey Today
+                  </h3>
+
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-xs text-foreground">
+                      <CheckCircle className="w-4 h-4 text-primary flex-shrink-0" />
+                      <span className="font-medium">30-Day Transformation Program</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-foreground">
+                      <CheckCircle className="w-4 h-4 text-primary flex-shrink-0" />
+                      <span className="font-medium">Unlimited Panic Button & Coach</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-foreground">
+                      <CheckCircle className="w-4 h-4 text-primary flex-shrink-0" />
+                      <span className="font-medium">Available on iOS and Android</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-foreground">
+                      <CheckCircle className="w-4 h-4 text-primary flex-shrink-0" />
+                      <span className="font-medium">Your 100% Free Lifetime Ally (after 30-day program)</span>
+                    </div>
+                  </div>
+
+                  <Button 
+                    onClick={detectOSAndRedirect}
+                    size="lg" 
+                    className="w-full h-12 text-base font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-md rounded-xl mt-4"
+                  >
+                    Claim Your Custom Plan & Open App
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+
+                  <div className="pt-4 border-t border-border">
+                    <p className="text-xs text-muted">
+                      Already have an account?{' '}
+                      <Link href="/app" className="text-primary hover:underline font-semibold">
+                        Sign In to App
+                      </Link>
                     </p>
                   </div>
-
-                  <div className="space-y-3">
-                    <div className="p-3.5 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 flex items-start gap-3">
-                      <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-                        <Zap className="w-5 h-5 text-primary" />
-                      </div>
-                      <div className="flex-1 pt-1">
-                        <h4 className="font-bold text-foreground text-sm mb-0.5">Panic Button - Instant SOS</h4>
-                        <p className="text-xs text-muted leading-relaxed">Get 15-second emergency interventions when cravings hit hardest</p>
-                      </div>
-                    </div>
-
-                    <div className="p-3.5 rounded-xl bg-gradient-to-br from-accent/10 to-accent/5 border border-accent/20 flex items-start gap-3">
-                      <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0">
-                        <Brain className="w-5 h-5 text-accent" />
-                      </div>
-                      <div className="flex-1 pt-1">
-                        <h4 className="font-bold text-foreground text-sm mb-0.5">Craving Coach - Personalized Guidance</h4>
-                        <p className="text-xs text-muted leading-relaxed">AI-powered insights matching your exact triggers and support style</p>
-                      </div>
-                    </div>
-
-                    <div className="p-3.5 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 flex items-start gap-3">
-                      <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-                        <Heart className="w-5 h-5 text-primary" />
-                      </div>
-                      <div className="flex-1 pt-1">
-                        <h4 className="font-bold text-foreground text-sm mb-0.5">30-Day Transformation</h4>
-                        <p className="text-xs text-muted leading-relaxed">Daily assistant for habit reprogramming without restrictive diets</p>
-                      </div>
-                    </div>
-
-                    <div className="p-3.5 rounded-xl bg-gradient-to-br from-accent/10 to-accent/5 border border-accent/20 flex items-start gap-3">
-                      <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0">
-                        <Shield className="w-5 h-5 text-accent" />
-                      </div>
-                      <div className="flex-1 pt-1">
-                        <h4 className="font-bold text-foreground text-sm mb-0.5">Your Lifetime Ally</h4>
-                        <p className="text-xs text-muted leading-relaxed">Unlimited access forever, even after completing your initial 30 days</p>
-                      </div>
-                    </div>
-                  </div>
-                </Card>
-
-                <Card className="p-6 shadow-lg rounded-2xl bg-gradient-to-br from-primary/5 to-transparent border-2 border-primary/30">
-                  <div className="text-center space-y-4">
-                    <h3 className="text-lg font-bold text-foreground">
-                      Start Your 30-Day Journey Today
-                    </h3>
-
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2 text-xs text-foreground">
-                        <CheckCircle className="w-4 h-4 text-primary flex-shrink-0" />
-                        <span className="font-medium">30-Day Transformation Program</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-xs text-foreground">
-                        <CheckCircle className="w-4 h-4 text-primary flex-shrink-0" />
-                        <span className="font-medium">Unlimited Panic Button & Coach</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-xs text-foreground">
-                        <CheckCircle className="w-4 h-4 text-primary flex-shrink-0" />
-                        <span className="font-medium">Available on iOS and Android</span>
-                      </div>
-                    </div>
-
-                    <Button 
-                      onClick={detectOSAndRedirect}
-                      size="lg" 
-                      className="w-full h-12 text-base font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-md rounded-xl mt-4"
-                    >
-                      Claim Your Custom Plan & Open App
-                      <ArrowRight className="w-4 h-4 ml-2" />
-                    </Button>
-
-                    <div className="pt-4 border-t border-border">
-                      <p className="text-xs text-muted">
-                        Already have an account?{' '}
-                        <Link href="/app" className="text-primary hover:underline font-semibold">
-                          Sign In to App
-                        </Link>
-                      </p>
-                    </div>
-                  </div>
-                </Card>
-              </div>
-            )}
-          </div>
+                </div>
+              </Card>
+            </div>
+          )}
         </div>
       </div>
     </div>
