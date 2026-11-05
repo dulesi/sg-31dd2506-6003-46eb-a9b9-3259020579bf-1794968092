@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Sparkles, ChevronRight, CheckCircle, Zap, Brain, Heart, Shield, Loader2, ArrowRight, AlertTriangle, TrendingUp, X, Lock } from 'lucide-react'
 import Link from 'next/link'
+import { supabase } from '@/integrations/supabase/client'
 
 type QuizAnswer = {
   step1?: string
@@ -59,18 +60,46 @@ export default function LandingPage() {
   const [currentScreen, setCurrentScreen] = useState<'hero' | 'quiz' | 'loading' | 'results'>('hero')
   const [quizStep, setQuizStep] = useState(1)
   const [answers, setAnswers] = useState<QuizAnswer>({})
+  const [hasSession, setHasSession] = useState(false)
+  const [isCheckingSession, setIsCheckingSession] = useState(true)
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setHasSession(!!session)
+      setIsCheckingSession(false)
+    })
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setHasSession(!!session)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
 
   const handleAnswer = (step: number, value: string) => {
     const key = `step${step}` as keyof QuizAnswer
-    setAnswers({ ...answers, [key]: value })
+    const newAnswers = { ...answers, [key]: value }
+    setAnswers(newAnswers)
 
-    if (step < 4) {
-      setQuizStep(step + 1)
-    } else {
+    if (step === 4) {
+      const timing = newAnswers.step1 ? timingLabels[newAnswers.step1] : 'general'
+      const goal = newAnswers.step2 ? goalLabels[newAnswers.step2] : 'wellness'
+      const struggle = newAnswers.step3 ? struggleLabels[newAnswers.step3] : 'some time'
+      const style = newAnswers.step4 ? styleLabels[newAnswers.step4] : 'support'
+
+      const summary = `Peak craving: ${timing} | Goal: ${goal} | Struggle duration: ${struggle} | Support style: ${style}`
+      
+      localStorage.setItem('pending_quiz_answers', JSON.stringify({
+        ...newAnswers,
+        ai_context_summary: summary
+      }))
+
       setCurrentScreen('loading')
       setTimeout(() => {
         setCurrentScreen('results')
       }, 2000)
+    } else {
+      setQuizStep(step + 1)
     }
   }
 
@@ -115,6 +144,44 @@ export default function LandingPage() {
   }
 
   const toolkit = getCustomToolkit()
+
+  if (isCheckingSession) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-primary animate-spin" />
+      </div>
+    )
+  }
+
+  if (hasSession) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="w-full max-w-[420px]">
+          <Card className="p-8 shadow-lg rounded-2xl border-2 border-primary/30 text-center space-y-6">
+            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+              <CheckCircle className="w-8 h-8 text-primary" />
+            </div>
+            <div className="space-y-2">
+              <h2 className="text-2xl font-bold text-foreground">
+                Welcome Back!
+              </h2>
+              <p className="text-sm text-muted">
+                You're already signed in. Continue to your dashboard.
+              </p>
+            </div>
+            <Button 
+              onClick={() => window.location.href = '/app'}
+              size="lg" 
+              className="w-full h-12 text-base font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-md rounded-xl"
+            >
+              Go to My Dashboard
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
+          </Card>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">

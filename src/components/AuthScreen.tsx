@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Sparkles, Loader2 } from 'lucide-react'
+import { Label } from '@/components/ui/label'
+import { AlertCircle, Loader2, CheckCircle, Sparkles } from 'lucide-react'
 import { supabase } from '@/integrations/supabase/client'
 import { useToast } from '@/hooks/use-toast'
 
@@ -11,131 +12,121 @@ interface AuthScreenProps {
 }
 
 export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
-  const [name, setName] = useState('')
+  const [isLogin, setIsLogin] = useState(true)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [isSignIn, setIsSignIn] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [showVerificationMessage, setShowVerificationMessage] = useState(false)
   const { toast } = useToast()
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        onAuthSuccess()
+      }
+    })
+
+    return () => subscription.unsubscribe()
+  }, [onAuthSuccess])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!email.trim() || !password.trim()) {
-      toast({
-        title: "Greška",
-        description: "Molimo popunite sva polja.",
-        variant: "destructive"
-      })
-      return
-    }
-
+    setError('')
     setIsLoading(true)
 
     try {
-      if (isSignIn) {
-        // Sign In
+      if (isLogin) {
         const { data, error } = await supabase.auth.signInWithPassword({
-          email: email.trim(),
-          password: password.trim()
+          email,
+          password,
         })
 
         if (error) throw error
 
-        toast({
-          title: "Uspelo!",
-          description: "Uspešno ste se prijavili.",
-          variant: "default"
-        })
-
-        // On Sign In, check if we have pending quiz answers to save
-        if (data.user) {
-          await savePendingQuizAnswers(data.user.id)
-        }
-
-        onAuthSuccess()
-      } else {
-        // Sign Up
-        if (!name.trim()) {
+        if (data.session) {
           toast({
-            title: "Greška",
-            description: "Molimo unesite vaše ime.",
-            variant: "destructive"
+            title: "Welcome back!",
+            description: "Successfully signed in.",
           })
-          setIsLoading(false)
-          return
+          onAuthSuccess()
         }
+      } else {
+        const pendingQuiz = localStorage.getItem('pending_quiz_answers')
+        const quizData = pendingQuiz ? JSON.parse(pendingQuiz) : {}
 
         const { data, error } = await supabase.auth.signUp({
-          email: email.trim(),
-          password: password.trim(),
-          options: {
-            data: {
-              full_name: name.trim()
-            }
-          }
+          email,
+          password,
         })
 
         if (error) throw error
 
         if (data.user) {
-          // Explicitly insert profile row in profiles table
-          const { error: profileError } = await supabase.from('profiles').insert({
-            id: data.user.id,
-            full_name: name.trim(),
-            email: email.trim()
-          })
+          if (quizData.ai_context_summary) {
+            const { error: insertError } = await supabase
+              .from('user_quiz_answers')
+              .insert({
+                user_id: data.user.id,
+                step1: quizData.step1,
+                step2: quizData.step2,
+                step3: quizData.step3,
+                step4: quizData.step4,
+                ai_context_summary: quizData.ai_context_summary
+              })
 
-          if (profileError) {
-            console.error("Failed to insert profile row:", profileError)
+            if (!insertError) {
+              localStorage.removeItem('pending_quiz_answers')
+            }
           }
 
-          // Save pending quiz answers under their user_id
-          await savePendingQuizAnswers(data.user.id)
+          setShowVerificationMessage(true)
+          toast({
+            title: "Account created!",
+            description: "Please check your email to verify your account.",
+            duration: 6000,
+          })
         }
-
-        toast({
-          title: "Profil kreiran!",
-          description: "Uspešno ste kreirali profil i započeli AdioSugar program.",
-          variant: "default"
-        })
-
-        onAuthSuccess()
       }
     } catch (err: any) {
+      setError(err.message || 'An error occurred')
       toast({
-        title: "Greška pri autorizaciji",
-        description: err.message || "Došlo je do greške.",
-        variant: "destructive"
+        title: "Error",
+        description: err.message || 'An error occurred',
+        variant: "destructive",
       })
     } finally {
       setIsLoading(false)
     }
   }
 
-  const savePendingQuizAnswers = async (userId: string) => {
-    try {
-      if (typeof window === 'undefined') return
-      const pending = localStorage.getItem('pending_quiz_answers')
-      if (pending) {
-        const parsed = JSON.parse(pending)
-        const { error } = await supabase.from('user_quiz_answers').insert({
-          user_id: userId,
-          cravings_timing: parsed.cravings_timing || null,
-          primary_goal: parsed.primary_goal || null,
-          struggle_duration: parsed.struggle_duration || null,
-          support_style: parsed.support_style || null,
-          ai_context_summary: parsed.ai_context_summary || null
-        })
-
-        if (!error) {
-          localStorage.removeItem('pending_quiz_answers')
-        } else {
-          console.error("Error inserting user_quiz_answers:", error)
-        }
-      }
-    } catch (err) {
-      console.error("Failed to save pending quiz answers:", err)
-    }
+  if (showVerificationMessage) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <Card className="w-full max-w-md p-8 shadow-lg text-center space-y-6">
+          <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+            <CheckCircle className="w-8 h-8 text-primary" />
+          </div>
+          <div className="space-y-2">
+            <h2 className="text-2xl font-bold text-foreground">
+              Account Created!
+            </h2>
+            <p className="text-sm text-muted">
+              Please check your email to verify your account.
+            </p>
+          </div>
+          <Button
+            onClick={() => {
+              setShowVerificationMessage(false)
+              setIsLogin(true)
+            }}
+            className="w-full"
+          >
+            Back to Sign In
+          </Button>
+        </Card>
+      </div>
+    )
   }
 
   return (
@@ -150,7 +141,7 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {!isSignIn && (
+          {!isLogin && (
             <div className="space-y-2">
               <label htmlFor="name" className="text-sm font-medium text-foreground">
                 Your Name
@@ -159,10 +150,10 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
                 id="name"
                 type="text"
                 placeholder="Enter your name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                value=""
+                onChange={(e) => {}}
                 className="h-12 animate-fade-in"
-                required={!isSignIn}
+                required={!isLogin}
               />
             </div>
           )}
@@ -204,7 +195,7 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
           >
             {isLoading ? (
               <Loader2 className="w-5 h-5 animate-spin mx-auto" />
-            ) : isSignIn ? (
+            ) : isLogin ? (
               'Sign In'
             ) : (
               'Get Started'
@@ -215,10 +206,10 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
         <div className="text-center">
           <button
             type="button"
-            onClick={() => setIsSignIn(!isSignIn)}
+            onClick={() => setIsLogin(!isLogin)}
             className="text-sm text-muted hover:text-primary transition-colors font-medium"
           >
-            {isSignIn ? "New here? Create your profile" : "Already have an account? Sign In"}
+            {isLogin ? "New here? Create your profile" : "Already have an account? Sign In"}
           </button>
         </div>
 

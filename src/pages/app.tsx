@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { Trophy, MessageCircle, Heart, User as UserIcon } from 'lucide-react'
 import MobileShell, { TabId } from '@/components/MobileShell'
 import ProgressTab from '@/components/tabs/ProgressTab'
 import CoachTab from '@/components/tabs/CoachTab'
@@ -19,7 +20,6 @@ export default function App() {
   const [aiContextSummary, setAiContextSummary] = useState<string>('')
 
   useEffect(() => {
-    // Get active Supabase session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session)
       if (session?.user) {
@@ -28,11 +28,12 @@ export default function App() {
       setIsLoading(false)
     })
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       setSession(session)
-      if (session?.user) {
-        fetchUserQuizAnswers(session.user.id)
-      } else {
+      
+      if (event === 'SIGNED_IN' && session?.user) {
+        await fetchUserQuizAnswers(session.user.id)
+      } else if (event === 'SIGNED_OUT') {
         setAiContextSummary('')
       }
     })
@@ -100,7 +101,7 @@ export default function App() {
   }
 
   if (!session) {
-    return <AuthScreen onAuthSuccess={() => {}} />
+    return <AuthScreen onAuthSuccess={() => setIsLoading(true)} />
   }
 
   return (
