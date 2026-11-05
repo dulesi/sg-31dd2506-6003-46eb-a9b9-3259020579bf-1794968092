@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Sparkles, ChevronRight, CheckCircle, Zap, Brain, Heart, Shield, Loader2, ExternalLink } from 'lucide-react'
+import { Sparkles, ChevronRight, CheckCircle, Zap, Brain, Heart, Shield, Loader2, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 
 type QuizAnswer = {
@@ -12,6 +12,33 @@ type QuizAnswer = {
   step4?: string
 }
 
+const timingLabels: Record<string, string> = {
+  afternoon: 'mid-afternoon crash',
+  aftermeal: 'after meals/dinner',
+  stress: 'stressful moments',
+  night: 'late night snacks'
+}
+
+const goalLabels: Record<string, string> = {
+  energy: 'consistent daily energy',
+  weight: 'reduced bloating & fat loss',
+  clarity: 'better mental clarity & sleep',
+  health: 'long-term health control'
+}
+
+const struggleLabels: Record<string, string> = {
+  recent: 'just recently',
+  months: 'a few months',
+  years: 'off and on for years',
+  always: 'as long as I can remember'
+}
+
+const styleLabels: Record<string, string> = {
+  sos: '15s emergency SOS',
+  science: 'science explanations',
+  mindset: 'gentle mindset guidance'
+}
+
 export default function LandingPage() {
   const [quizStep, setQuizStep] = useState(0)
   const [answers, setAnswers] = useState<QuizAnswer>({})
@@ -19,10 +46,29 @@ export default function LandingPage() {
   const [showResults, setShowResults] = useState(false)
 
   const handleAnswer = (step: string, value: string) => {
-    setAnswers({ ...answers, [step]: value })
+    const updatedAnswers = { ...answers, [step]: value }
+    setAnswers(updatedAnswers)
     
     if (step === 'step4') {
       setIsAnalyzing(true)
+      
+      // Build summary context
+      const peakTiming = timingLabels[updatedAnswers.step1 || ''] || 'general'
+      const primaryGoal = goalLabels[updatedAnswers.step2 || ''] || 'general'
+      const supportStyle = styleLabels[updatedAnswers.step4 || ''] || 'general'
+      const summary = `Peak craving: ${peakTiming} | Goal: ${primaryGoal} | Style: ${supportStyle}`
+      
+      // Save pending quiz answers to localStorage to be read on sign up/in at /app
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('pending_quiz_answers', JSON.stringify({
+          cravings_timing: updatedAnswers.step1,
+          primary_goal: updatedAnswers.step2,
+          struggle_duration: updatedAnswers.step3,
+          support_style: updatedAnswers.step4,
+          ai_context_summary: summary
+        }))
+      }
+
       setTimeout(() => {
         setIsAnalyzing(false)
         setShowResults(true)
@@ -72,12 +118,12 @@ export default function LandingPage() {
       {/* Hero Section */}
       <div className="container mx-auto px-4 py-16 md:py-24 max-w-4xl">
         <div className="text-center space-y-6">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 animate-fade-in">
             <Sparkles className="w-4 h-4 text-primary" />
             <span className="text-sm font-medium text-primary">AI-Powered Behavioral Coach</span>
           </div>
           
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight tracking-tight">
             Break Free from Sugar Cravings — Without Restrictive Diets or Endless Willpower
           </h1>
           
@@ -89,10 +135,9 @@ export default function LandingPage() {
             <Button
               onClick={scrollToQuiz}
               size="lg"
-              className="h-14 px-8 text-lg font-bold bg-primary hover:bg-primary/90 text-primary-foreground"
+              className="h-14 px-8 text-lg font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20 rounded-xl"
             >
-              Take the 60-Second Sugar Dependency Quiz
-              <ChevronRight className="w-5 h-5 ml-2" />
+              Take the 60-Second Sugar Dependency Quiz →
             </Button>
           </div>
 
@@ -106,7 +151,7 @@ export default function LandingPage() {
       </div>
 
       {/* Quiz Section */}
-      <div id="quiz-section" className="container mx-auto px-4 py-16 max-w-2xl">
+      <div id="quiz-section" className="container mx-auto px-4 py-12 max-w-2xl">
         {quizStep === 0 && (
           <div className="text-center space-y-4 opacity-0 animate-fade-in">
             <p className="text-muted">Scroll down to start the quiz</p>
@@ -114,9 +159,9 @@ export default function LandingPage() {
         )}
 
         {quizStep === 1 && (
-          <Card className="p-8 shadow-xl rounded-2xl space-y-6 animate-slide-up">
+          <Card className="p-8 shadow-xl rounded-2xl space-y-6 animate-slide-up border border-border bg-card">
             <div className="text-center space-y-2">
-              <Badge variant="outline" className="mb-2">Step 1 of 4</Badge>
+              <Badge variant="outline" className="mb-2 border-primary/20 text-primary bg-primary/5">Step 1 of 4</Badge>
               <h2 className="text-2xl font-bold text-foreground">
                 When do you feel sugar cravings hitting you hardest?
               </h2>
@@ -130,7 +175,7 @@ export default function LandingPage() {
                 >
                   <span className="text-3xl">{option.emoji}</span>
                   <span className="text-lg font-medium text-foreground">{option.label}</span>
-                  <ChevronRight className="w-5 h-5 ml-auto text-muted group-hover:text-primary" />
+                  <ChevronRight className="w-5 h-5 ml-auto text-muted group-hover:text-primary transition-colors" />
                 </button>
               ))}
             </div>
@@ -138,9 +183,9 @@ export default function LandingPage() {
         )}
 
         {quizStep === 2 && (
-          <Card className="p-8 shadow-xl rounded-2xl space-y-6 animate-slide-up">
+          <Card className="p-8 shadow-xl rounded-2xl space-y-6 animate-slide-up border border-border bg-card">
             <div className="text-center space-y-2">
-              <Badge variant="outline" className="mb-2">Step 2 of 4</Badge>
+              <Badge variant="outline" className="mb-2 border-primary/20 text-primary bg-primary/5">Step 2 of 4</Badge>
               <h2 className="text-2xl font-bold text-foreground">
                 What is your primary goal for reducing sugar?
               </h2>
@@ -154,7 +199,7 @@ export default function LandingPage() {
                 >
                   <span className="text-3xl">{option.emoji}</span>
                   <span className="text-lg font-medium text-foreground">{option.label}</span>
-                  <ChevronRight className="w-5 h-5 ml-auto text-muted group-hover:text-primary" />
+                  <ChevronRight className="w-5 h-5 ml-auto text-muted group-hover:text-primary transition-colors" />
                 </button>
               ))}
             </div>
@@ -162,9 +207,9 @@ export default function LandingPage() {
         )}
 
         {quizStep === 3 && (
-          <Card className="p-8 shadow-xl rounded-2xl space-y-6 animate-slide-up">
+          <Card className="p-8 shadow-xl rounded-2xl space-y-6 animate-slide-up border border-border bg-card">
             <div className="text-center space-y-2">
-              <Badge variant="outline" className="mb-2">Step 3 of 4</Badge>
+              <Badge variant="outline" className="mb-2 border-primary/20 text-primary bg-primary/5">Step 3 of 4</Badge>
               <h2 className="text-2xl font-bold text-foreground">
                 How long have you been struggling with sugar reliance?
               </h2>
@@ -178,7 +223,7 @@ export default function LandingPage() {
                 >
                   <span className="text-3xl">{option.emoji}</span>
                   <span className="text-lg font-medium text-foreground">{option.label}</span>
-                  <ChevronRight className="w-5 h-5 ml-auto text-muted group-hover:text-primary" />
+                  <ChevronRight className="w-5 h-5 ml-auto text-muted group-hover:text-primary transition-colors" />
                 </button>
               ))}
             </div>
@@ -186,9 +231,9 @@ export default function LandingPage() {
         )}
 
         {quizStep === 4 && !isAnalyzing && !showResults && (
-          <Card className="p-8 shadow-xl rounded-2xl space-y-6 animate-slide-up">
+          <Card className="p-8 shadow-xl rounded-2xl space-y-6 animate-slide-up border border-border bg-card">
             <div className="text-center space-y-2">
-              <Badge variant="outline" className="mb-2">Step 4 of 4</Badge>
+              <Badge variant="outline" className="mb-2 border-primary/20 text-primary bg-primary/5">Step 4 of 4</Badge>
               <h2 className="text-2xl font-bold text-foreground">
                 What support style works best for you?
               </h2>
@@ -202,7 +247,7 @@ export default function LandingPage() {
                 >
                   <span className="text-3xl">{option.emoji}</span>
                   <span className="text-lg font-medium text-foreground">{option.label}</span>
-                  <ChevronRight className="w-5 h-5 ml-auto text-muted group-hover:text-primary" />
+                  <ChevronRight className="w-5 h-5 ml-auto text-muted group-hover:text-primary transition-colors" />
                 </button>
               ))}
             </div>
@@ -210,7 +255,7 @@ export default function LandingPage() {
         )}
 
         {isAnalyzing && (
-          <Card className="p-12 shadow-xl rounded-2xl animate-fade-in">
+          <Card className="p-12 shadow-xl rounded-2xl animate-fade-in border border-border bg-card">
             <div className="text-center space-y-6">
               <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
                 <Loader2 className="w-10 h-10 text-primary animate-spin" />
@@ -229,7 +274,7 @@ export default function LandingPage() {
 
         {showResults && (
           <div className="space-y-8 animate-slide-up">
-            <Card className="p-8 shadow-xl rounded-2xl space-y-6 border-2 border-primary/20">
+            <Card className="p-8 shadow-xl rounded-2xl space-y-6 border-2 border-primary/20 bg-card">
               <div className="text-center space-y-3">
                 <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
                   <CheckCircle className="w-8 h-8 text-primary" />
@@ -289,26 +334,35 @@ export default function LandingPage() {
                 <div className="space-y-3 pt-4">
                   <div className="flex items-center justify-center gap-3">
                     <CheckCircle className="w-5 h-5 text-primary flex-shrink-0" />
-                    <span className="text-sm text-foreground">30-Day Transformation Program</span>
+                    <span className="text-sm text-foreground font-medium">30-Day Transformation Program</span>
                   </div>
                   <div className="flex items-center justify-center gap-3">
                     <CheckCircle className="w-5 h-5 text-primary flex-shrink-0" />
-                    <span className="text-sm text-foreground">Unlimited Panic Button & Craving Coach</span>
+                    <span className="text-sm text-foreground font-medium">Unlimited Panic Button & Craving Coach</span>
                   </div>
                   <div className="flex items-center justify-center gap-3">
                     <CheckCircle className="w-5 h-5 text-primary flex-shrink-0" />
-                    <span className="text-sm text-foreground">Available on iOS and Android</span>
+                    <span className="text-sm text-foreground font-medium">Available on iOS and Android</span>
                   </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-4 items-center justify-center pt-6">
+                <div className="pt-6">
+                  <Link href="/app">
+                    <Button size="lg" className="w-full h-14 text-lg font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-md shadow-primary/20 rounded-xl">
+                      Claim Your Custom Plan & Open App
+                      <ArrowRight className="w-5 h-5 ml-2" />
+                    </Button>
+                  </Link>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-4 items-center justify-center pt-4">
                   <a
                     href="https://apps.apple.com/app/adiosugar"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-black hover:bg-black/90 text-white font-medium transition-colors"
+                    className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-black hover:bg-black/90 text-white font-medium transition-colors text-sm w-full sm:w-auto justify-center"
                   >
-                    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M18.71 19.5C17.88 20.74 17 21.95 15.66 21.97C14.32 22 13.89 21.18 12.37 21.18C10.84 21.18 10.37 21.95 9.1 22C7.79 22.05 6.8 20.68 5.96 19.47C4.25 17 2.94 12.45 4.7 9.39C5.57 7.87 7.13 6.91 8.82 6.88C10.1 6.86 11.32 7.75 12.11 7.75C12.89 7.75 14.37 6.68 15.92 6.84C16.57 6.87 18.39 7.1 19.56 8.82C19.47 8.88 17.39 10.1 17.41 12.63C17.44 15.65 20.06 16.66 20.09 16.67C20.06 16.74 19.67 18.11 18.71 19.5M13 3.5C13.73 2.67 14.94 2.04 15.94 2C16.07 3.17 15.6 4.35 14.9 5.19C14.21 6.04 13.07 6.7 11.95 6.61C11.8 5.46 12.36 4.26 13 3.5Z"/>
                     </svg>
                     Download on App Store
@@ -317,9 +371,9 @@ export default function LandingPage() {
                     href="https://play.google.com/store/apps/details?id=com.adiosugar"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-black hover:bg-black/90 text-white font-medium transition-colors"
+                    className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-black hover:bg-black/90 text-white font-medium transition-colors text-sm w-full sm:w-auto justify-center"
                   >
-                    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M3,20.5V3.5C3,2.91 3.34,2.39 3.84,2.15L13.69,12L3.84,21.85C3.34,21.6 3,21.09 3,20.5M16.81,15.12L6.05,21.34L14.54,12.85L16.81,15.12M20.16,10.81C20.5,11.08 20.75,11.5 20.75,12C20.75,12.5 20.53,12.9 20.18,13.18L17.89,14.5L15.39,12L17.89,9.5L20.16,10.81M6.05,2.66L16.81,8.88L14.54,11.15L6.05,2.66Z"/>
                     </svg>
                     Get it on Google Play
@@ -327,12 +381,12 @@ export default function LandingPage() {
                 </div>
 
                 <div className="pt-6 border-t border-border">
-                  <Link href="/app">
-                    <Button variant="outline" size="lg" className="font-medium">
-                      <ExternalLink className="w-4 h-4 mr-2" />
-                      Already have an account? Sign In to App
-                    </Button>
-                  </Link>
+                  <p className="text-sm text-muted">
+                    Already have an account?{' '}
+                    <Link href="/app" className="text-primary hover:underline font-semibold">
+                      Sign In to App
+                    </Link>
+                  </p>
                 </div>
               </div>
             </Card>
