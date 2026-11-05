@@ -363,31 +363,25 @@ export default function LandingPage() {
                     <h3 className="text-lg font-bold text-foreground">
                       Start Your 30-Day Journey Today
                     </h3>
-                    <div className="flex items-baseline justify-center gap-2">
-                      <span className="text-3xl font-bold text-primary">$19.99</span>
-                      <span className="text-sm text-muted">One-Time Payment</span>
+                    <div className="space-y-1">
+                      <p className="text-xs font-bold text-primary uppercase tracking-wide">
+                        No Subscription
+                      </p>
+                      <div className="flex items-baseline justify-center gap-2">
+                        <span className="text-3xl font-bold text-primary">$19.99</span>
+                        <span className="text-sm text-muted">One-Time Payment</span>
+                      </div>
+                      <p className="text-xs font-semibold text-accent">
+                        Lifetime Access • Pay Once, Own Forever
+                      </p>
                     </div>
-                    <p className="text-xs font-semibold text-accent">
-                      Lifetime Access • Pay Once, Own Forever
-                    </p>
                   </div>
 
-                  <div className="space-y-2 py-2">
-                    <div className="flex items-center gap-2 text-xs text-muted">
-                      <X className="w-4 h-4 text-destructive flex-shrink-0" />
-                      <span>Typical SaaS Apps: <span className="font-semibold">$12.99/mo</span> (Draining subscriptions)</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-xs text-muted">
-                      <X className="w-4 h-4 text-destructive flex-shrink-0" />
-                      <span>Private Nutritionists: <span className="font-semibold">$150+/mo</span> (Too expensive & slow)</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-xs text-foreground font-medium">
+                  <div className="space-y-2 pt-2">
+                    <div className="flex items-center gap-2 text-xs text-foreground">
                       <CheckCircle className="w-4 h-4 text-primary flex-shrink-0" />
-                      <span>AdioSugar: <span className="font-bold text-primary">$19.99 One-Time</span> (Your private AI coach forever)</span>
+                      <span className="font-medium">AdioSugar: $19.99 One-Time (Your private AI support forever)</span>
                     </div>
-                  </div>
-
-                  <div className="space-y-2 pt-2 border-t border-border">
                     <div className="flex items-center gap-2 text-xs text-foreground">
                       <CheckCircle className="w-4 h-4 text-primary flex-shrink-0" />
                       <span className="font-medium">Zero Subscriptions — No recurring fees or hidden charges</span>
