@@ -6,27 +6,59 @@ import HealthTab from '@/components/tabs/HealthTab'
 import AccountTab from '@/components/tabs/AccountTab'
 import AuthScreen from '@/components/AuthScreen'
 import { getProgressData, updateProgressData, getShoppingList, updateShoppingList, incrementPanicClick } from '@/lib/localStorage'
-import { isUserLoggedIn, createUserProfile } from '@/lib/auth'
+import { supabase } from '@/integrations/supabase/client'
 
 export default function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [session, setSession] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<TabId>('progress')
   const [progressData, setProgressData] = useState(getProgressData())
   const [shoppingList, setShoppingList] = useState(getShoppingList())
   const [triggerCoach, setTriggerCoach] = useState(false)
   const [showLimitModal, setShowLimitModal] = useState(false)
+  const [aiContextSummary, setAiContextSummary] = useState<string>('')
 
   useEffect(() => {
-    setIsLoggedIn(isUserLoggedIn())
+    // Get active Supabase session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session)
+      if (session?.user) {
+        fetchUserQuizAnswers(session.user.id)
+      }
+      setIsLoading(false)
+    })
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session)
+      if (session?.user) {
+        fetchUserQuizAnswers(session.user.id)
+      } else {
+        setAiContextSummary('')
+      }
+    })
+
     setProgressData(getProgressData())
     setShoppingList(getShoppingList())
-    setIsLoading(false)
+
+    return () => subscription.unsubscribe()
   }, [])
 
-  const handleAuth = (name: string, email?: string) => {
-    createUserProfile(name, email)
-    setIsLoggedIn(true)
+  const fetchUserQuizAnswers = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('user_quiz_answers')
+        .select('ai_context_summary')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+
+      if (data?.ai_context_summary) {
+        setAiContextSummary(data.ai_context_summary)
+      }
+    } catch (err) {
+      console.error('Error fetching quiz answers:', err)
+    }
   }
 
   const handleProgressUpdate = (updates: any) => {
@@ -60,11 +92,15 @@ export default function App() {
   }
 
   if (isLoading) {
-    return null
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-primary"></div>
+      </div>
+    )
   }
 
-  if (!isLoggedIn) {
-    return <AuthScreen onAuth={handleAuth} />
+  if (!session) {
+    return <AuthScreen onAuthSuccess={() => {}} />
   }
 
   return (
@@ -74,6 +110,7 @@ export default function App() {
           data={progressData} 
           onUpdate={handleProgressUpdate}
           onPanicClick={handlePanicClick}
+          aiContextSummary={aiContextSummary}
         />
       )}
       {activeTab === 'coach' && (
@@ -83,6 +120,7 @@ export default function App() {
           triggerStart={triggerCoach}
           onTriggerClear={() => setTriggerCoach(false)}
           onComplete={() => setActiveTab('progress')}
+          aiContextSummary={aiContextSummary}
         />
       )}
       {activeTab === 'health' && (
