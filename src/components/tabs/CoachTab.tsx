@@ -13,6 +13,7 @@ interface CoachTabProps {
   triggerStart: boolean
   onTriggerClear: () => void
   onComplete?: () => void
+  aiContextSummary?: string
 }
 
 type AssessmentAdvice = {
@@ -48,7 +49,7 @@ const supportTypes = [
   { id: 'mindset', label: 'Guided Mindset Shift', subtitle: 'A 2-minute perspective shift exercise', emoji: '🎯' }
 ]
 
-export default function CoachTab({ data, onUpdate, triggerStart, onTriggerClear, onComplete }: CoachTabProps) {
+export default function CoachTab({ data, onUpdate, triggerStart, onTriggerClear, onComplete, aiContextSummary }: CoachTabProps) {
   const [step, setStep] = useState(0)
   const [selectedFeeling, setSelectedFeeling] = useState<string | null>(null)
   const [selectedTiming, setSelectedTiming] = useState<string | null>(null)
@@ -88,7 +89,13 @@ export default function CoachTab({ data, onUpdate, triggerStart, onTriggerClear,
       const response = await fetch('/api/ai-coach', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'mindset-assessment', feeling, timing, supportType })
+        body: JSON.stringify({ 
+          type: 'mindset-assessment', 
+          feeling, 
+          timing, 
+          supportType,
+          aiContextSummary 
+        })
       })
 
       if (!response.ok) throw new Error('Failed to get assessment')

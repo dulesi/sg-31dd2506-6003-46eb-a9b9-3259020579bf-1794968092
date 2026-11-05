@@ -14,9 +14,10 @@ interface ProgressTabProps {
   data: any
   onUpdate: (updates: any) => void
   onPanicClick: () => void
+  aiContextSummary?: string
 }
 
-export default function ProgressTab({ data, onUpdate, onPanicClick }: ProgressTabProps) {
+export default function ProgressTab({ data, onUpdate, onPanicClick, aiContextSummary }: ProgressTabProps) {
   const [showConfetti, setShowConfetti] = useState(false)
   const [showSlipOverlay, setShowSlipOverlay] = useState(false)
   const [dailyHack, setDailyHack] = useState<string>('')
@@ -51,7 +52,7 @@ export default function ProgressTab({ data, onUpdate, onPanicClick }: ProgressTa
       const response = await fetch('/api/ai-coach', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'daily-hack' })
+        body: JSON.stringify({ type: 'daily-hack', aiContextSummary })
       })
 
       if (response.ok) {
