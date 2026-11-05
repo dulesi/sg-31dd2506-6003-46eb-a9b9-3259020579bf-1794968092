@@ -1,8 +1,9 @@
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
-import { Trophy, Calendar, CheckCircle, RotateCcw, Share2, Instagram, ExternalLink } from 'lucide-react'
+import { Trophy, Calendar, CheckCircle, RotateCcw, Share2, Instagram, ExternalLink, Trash2, FileText, Shield } from 'lucide-react'
 import { shareProgress } from '@/lib/share'
+import { deleteUserAccount } from '@/lib/auth'
 
 interface AccountTabProps {
   data: any
@@ -130,6 +131,44 @@ export default function AccountTab({ data, onUpdate, onReset }: AccountTabProps)
       </Card>
 
       <Card className="p-6 shadow-md rounded-2xl space-y-4">
+        <h2 className="text-lg font-bold text-foreground">Legal & Information</h2>
+        
+        <div className="space-y-3">
+          <a
+            href="https://adiosugar.com/privacy"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full p-4 rounded-xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all flex items-center gap-4 group"
+          >
+            <div className="w-12 h-12 rounded-full bg-muted/10 flex items-center justify-center flex-shrink-0">
+              <Shield className="w-6 h-6 text-muted group-hover:text-primary" />
+            </div>
+            <div className="flex-1">
+              <div className="font-bold text-foreground">Privacy Policy</div>
+              <div className="text-sm text-muted">How we protect your data</div>
+            </div>
+            <ExternalLink className="w-5 h-5 text-muted group-hover:text-primary" />
+          </a>
+
+          <a
+            href="https://adiosugar.com/terms"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full p-4 rounded-xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all flex items-center gap-4 group"
+          >
+            <div className="w-12 h-12 rounded-full bg-muted/10 flex items-center justify-center flex-shrink-0">
+              <FileText className="w-6 h-6 text-muted group-hover:text-primary" />
+            </div>
+            <div className="flex-1">
+              <div className="font-bold text-foreground">Terms of Service</div>
+              <div className="text-sm text-muted">User agreement & guidelines</div>
+            </div>
+            <ExternalLink className="w-5 h-5 text-muted group-hover:text-primary" />
+          </a>
+        </div>
+      </Card>
+
+      <Card className="p-6 shadow-md rounded-2xl space-y-4">
         <h2 className="text-lg font-bold text-foreground">Program Settings</h2>
         
         <AlertDialog>
@@ -150,6 +189,38 @@ export default function AccountTab({ data, onUpdate, onReset }: AccountTabProps)
               <AlertDialogCancel>Cancel</AlertDialogCancel>
               <AlertDialogAction onClick={onReset} className="bg-destructive hover:bg-destructive/90">
                 Yes, Reset Everything
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </Card>
+
+      <Card className="p-6 shadow-md rounded-2xl space-y-4 border-destructive/20">
+        <h2 className="text-lg font-bold text-foreground">Account Management</h2>
+        
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <button className="w-full p-4 rounded-xl border-2 border-destructive/30 hover:bg-destructive/5 transition-all flex items-center gap-4 group">
+              <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center flex-shrink-0">
+                <Trash2 className="w-6 h-6 text-destructive" />
+              </div>
+              <div className="flex-1 text-left">
+                <div className="font-bold text-destructive">Delete Account</div>
+                <div className="text-sm text-muted">Permanently erase all your data</div>
+              </div>
+            </button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you sure you want to delete your account?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This will permanently erase all your local data, streaks, and history. This action cannot be undone and you will be redirected to the home page.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={deleteUserAccount} className="bg-destructive hover:bg-destructive/90">
+                Permanently Delete
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

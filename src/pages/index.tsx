@@ -4,9 +4,13 @@ import ProgressTab from '@/components/tabs/ProgressTab'
 import CoachTab from '@/components/tabs/CoachTab'
 import HealthTab from '@/components/tabs/HealthTab'
 import AccountTab from '@/components/tabs/AccountTab'
+import AuthScreen from '@/components/AuthScreen'
 import { getProgressData, updateProgressData, getShoppingList, updateShoppingList, incrementPanicClick } from '@/lib/localStorage'
+import { isUserLoggedIn, createUserProfile } from '@/lib/auth'
 
 export default function Home() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<TabId>('progress')
   const [progressData, setProgressData] = useState(getProgressData())
   const [shoppingList, setShoppingList] = useState(getShoppingList())
@@ -14,9 +18,16 @@ export default function Home() {
   const [showLimitModal, setShowLimitModal] = useState(false)
 
   useEffect(() => {
+    setIsLoggedIn(isUserLoggedIn())
     setProgressData(getProgressData())
     setShoppingList(getShoppingList())
+    setIsLoading(false)
   }, [])
+
+  const handleAuth = (name: string, email?: string) => {
+    createUserProfile(name, email)
+    setIsLoggedIn(true)
+  }
 
   const handleProgressUpdate = (updates: any) => {
     const newData = { ...progressData, ...updates }
@@ -46,6 +57,14 @@ export default function Home() {
   const handleLimitModalDismiss = () => {
     setShowLimitModal(false)
     setActiveTab('progress')
+  }
+
+  if (isLoading) {
+    return null
+  }
+
+  if (!isLoggedIn) {
+    return <AuthScreen onAuth={handleAuth} />
   }
 
   return (
