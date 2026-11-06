@@ -68,10 +68,10 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
               .from('user_quiz_answers')
               .insert({
                 user_id: data.user.id,
-                cravings_timing: quizData.step1 as string,
-                primary_goal: quizData.step2 as string,
-                struggle_duration: quizData.step3 as string,
-                support_style: quizData.step4 as string,
+                cravings_timing: quizData.triggers as string,
+                primary_goal: quizData.primaryGoal as string,
+                struggle_duration: quizData.ageGroup as string,
+                support_style: quizData.gender as string,
                 ai_context_summary: quizData.ai_context_summary as string
               })
 
