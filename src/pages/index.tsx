@@ -70,7 +70,7 @@ const detectOSAndRedirect = () => {
 }
 
 export default function LandingPage() {
-  const [currentScreen, setCurrentScreen] = useState<'hero' | 'quiz' | 'loading' | 'results'>('hero')
+  const [currentScreen, setCurrentScreen] = useState<'hero' | 'quiz' | 'loading' | 'results' | 'register'>('hero')
   const [quizStep, setQuizStep] = useState(1)
   const [quizData, setQuizData] = useState<QuizData>({ drinks: {}, sweets: {} })
   const [hasSession, setHasSession] = useState(false)
@@ -82,6 +82,10 @@ export default function LandingPage() {
     zoneColor: '',
     zoneMessage: ''
   })
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [isRegistering, setIsRegistering] = useState(false)
+  const [regError, setRegError] = useState('')
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -181,6 +185,50 @@ export default function LandingPage() {
   const startQuiz = () => {
     setCurrentScreen('quiz')
     setQuizStep(1)
+  }
+
+  const handleRegistration = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setRegError('')
+    setIsRegistering(true)
+
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+      })
+
+      if (error) throw error
+
+      if (data.user) {
+        const summary = `Daily sugar: ${calculatedResults.dailyGrams}g | Zone: ${calculatedResults.zone} | Goal: ${quizData.primaryGoal || 'wellness'} | Triggers: ${quizData.triggers || 'general'}`
+        
+        const { error: insertError } = await supabase
+          .from('user_quiz_answers')
+          .insert({
+            user_id: data.user.id,
+            cravings_timing: quizData.triggers as string,
+            primary_goal: quizData.primaryGoal as string,
+            struggle_duration: quizData.ageGroup as string,
+            support_style: quizData.gender as string,
+            ai_context_summary: summary
+          })
+
+        if (!insertError) {
+          localStorage.removeItem('pending_quiz_answers')
+        }
+
+        window.location.href = '/app'
+      }
+    } catch (err: any) {
+      setRegError(err.message || 'Registration failed')
+    } finally {
+      setIsRegistering(false)
+    }
+  }
+
+  const openRegistration = () => {
+    setCurrentScreen('register')
   }
 
   if (isCheckingSession) {
@@ -630,7 +678,7 @@ export default function LandingPage() {
                   </div>
 
                   <Button 
-                    onClick={detectOSAndRedirect}
+                    onClick={openRegistration}
                     size="lg" 
                     className="w-full h-12 text-base font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-md rounded-xl mt-4"
                   >
@@ -652,6 +700,82 @@ export default function LandingPage() {
                     </p>
                   </div>
                 </div>
+              </Card>
+            </div>
+          )}
+
+          {currentScreen === 'register' && (
+            <div className="animate-in fade-in duration-500">
+              <Card className="p-6 shadow-lg rounded-2xl border-2 border-primary/30">
+                <form onSubmit={handleRegistration} className="space-y-4">
+                  <div className="text-center space-y-2 pb-4">
+                    <h2 className="text-xl font-bold text-foreground">Create Your Account</h2>
+                    <p className="text-sm text-muted">
+                      Get instant access to your personalized 30-day reset plan
+                    </p>
+                  </div>
+
+                  {regError && (
+                    <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/30 text-sm text-destructive">
+                      {regError}
+                    </div>
+                  )}
+
+                  <div className="space-y-3">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-foreground">Email</label>
+                      <Input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="your@email.com"
+                        required
+                        className="h-11"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-foreground">Password</label>
+                      <Input
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="Minimum 6 characters"
+                        required
+                        minLength={6}
+                        className="h-11"
+                      />
+                    </div>
+                  </div>
+
+                  <Button
+                    type="submit"
+                    disabled={isRegistering}
+                    size="lg"
+                    className="w-full h-12 text-base font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-md rounded-xl mt-4"
+                  >
+                    {isRegistering ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Creating Account...
+                      </>
+                    ) : (
+                      <>
+                        Create Account & Start Program
+                        <ArrowRight className="w-4 h-4 ml-2" />
+                      </>
+                    )}
+                  </Button>
+
+                  <div className="pt-3 border-t border-border">
+                    <p className="text-xs text-muted text-center">
+                      Already have an account?{' '}
+                      <Link href="/app" className="text-primary hover:underline font-semibold">
+                        Sign In to App
+                      </Link>
+                    </p>
+                  </div>
+                </form>
               </Card>
             </div>
           )}
