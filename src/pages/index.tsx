@@ -46,6 +46,16 @@ const sweetItems: SweetItem[] = [
   { id: 'none', label: 'Rarely consume sweets', icon: <CheckCircle className="w-5 h-5" />, grams: 0 },
 ]
 
+const sugarWeights: Record<string, number> = {
+  soda: 35,
+  juice: 25,
+  coffee: 15,
+  chocolate: 40,
+  bakery: 30,
+  bread: 3.5,
+  icecream: 30
+}
+
 const detectOSAndRedirect = () => {
   const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera
   if (/iPad|iPhone|iPod/.test(userAgent) && !(window as any).MSStream) {
@@ -378,39 +388,196 @@ export default function LandingPage() {
                   )}
 
                   {quizStep === 3 && (
-                    <div className="space-y-4">
-                      <h2 className="text-lg font-bold text-foreground">Sweets & Bakery</h2>
-                      <p className="text-xs text-muted">Select what you eat and how many per day</p>
-                      
-                      <div className="space-y-3">
-                        {sweetItems.map((item) => (
-                          <div key={item.id} className="flex items-center justify-between p-3 rounded-xl border-2 border-border">
-                            <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                                {item.icon}
-                              </div>
-                              <span className="text-sm font-medium text-foreground">{item.label}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <button
-                                onClick={() => updateSweetCount(item.id, -1)}
-                                className="w-8 h-8 rounded-lg bg-border hover:bg-primary/20 flex items-center justify-center transition-colors"
-                              >
-                                <Minus className="w-4 h-4" />
-                              </button>
-                              <span className="w-8 text-center font-bold text-foreground">{quizData.sweets[item.id] || 0}</span>
-                              <button
-                                onClick={() => updateSweetCount(item.id, 1)}
-                                className="w-8 h-8 rounded-lg bg-border hover:bg-primary/20 flex items-center justify-center transition-colors"
-                              >
-                                <Plus className="w-4 h-4" />
-                              </button>
-                            </div>
-                          </div>
-                        ))}
+                    <div className="space-y-4 animate-fade-in">
+                      <div className="text-center space-y-2 mb-6">
+                        <h2 className="text-xl font-bold text-foreground">
+                          Step 3: Sweets & Baked Goods
+                        </h2>
+                        <p className="text-sm text-muted">
+                          Select items and set daily frequency
+                        </p>
                       </div>
 
-                      <Button onClick={nextStep} className="w-full mt-4">
+                      <div className="space-y-3">
+                        <Card 
+                          className={`p-4 cursor-pointer transition-all ${
+                            selections.chocolate > 0 ? 'border-primary border-2 bg-primary/5' : 'border-border hover:border-primary/50'
+                          }`}
+                          onClick={() => selections.chocolate === 0 && handleFrequencyChange('chocolate', 1)}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center">
+                                🍫
+                              </div>
+                              <span className="text-sm font-medium">Chocolate / Cookies / Sweets</span>
+                            </div>
+                            {selections.chocolate > 0 && (
+                              <div className="flex items-center gap-2">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="h-7 w-7 p-0"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleFrequencyChange('chocolate', selections.chocolate - 1)
+                                  }}
+                                >
+                                  -
+                                </Button>
+                                <span className="text-sm font-bold w-8 text-center">{selections.chocolate}</span>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="h-7 w-7 p-0"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleFrequencyChange('chocolate', selections.chocolate + 1)
+                                  }}
+                                >
+                                  +
+                                </Button>
+                              </div>
+                            )}
+                          </div>
+                        </Card>
+
+                        <Card 
+                          className={`p-4 cursor-pointer transition-all ${
+                            selections.bakery > 0 ? 'border-primary border-2 bg-primary/5' : 'border-border hover:border-primary/50'
+                          }`}
+                          onClick={() => selections.bakery === 0 && handleFrequencyChange('bakery', 1)}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center">
+                                🥐
+                              </div>
+                              <span className="text-sm font-medium">Bakery / Croissants / Sweet Pastries</span>
+                            </div>
+                            {selections.bakery > 0 && (
+                              <div className="flex items-center gap-2">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="h-7 w-7 p-0"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleFrequencyChange('bakery', selections.bakery - 1)
+                                  }}
+                                >
+                                  -
+                                </Button>
+                                <span className="text-sm font-bold w-8 text-center">{selections.bakery}</span>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="h-7 w-7 p-0"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleFrequencyChange('bakery', selections.bakery + 1)
+                                  }}
+                                >
+                                  +
+                                </Button>
+                              </div>
+                            )}
+                          </div>
+                        </Card>
+
+                        <Card 
+                          className={`p-4 cursor-pointer transition-all ${
+                            selections.bread > 0 ? 'border-primary border-2 bg-primary/5' : 'border-border hover:border-primary/50'
+                          }`}
+                          onClick={() => selections.bread === 0 && handleFrequencyChange('bread', 1)}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center">
+                                🍞
+                              </div>
+                              <span className="text-sm font-medium">White Bread (Per Slice)</span>
+                            </div>
+                            {selections.bread > 0 && (
+                              <div className="flex items-center gap-2">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="h-7 w-7 p-0"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleFrequencyChange('bread', selections.bread - 1)
+                                  }}
+                                >
+                                  -
+                                </Button>
+                                <span className="text-sm font-bold w-8 text-center">{selections.bread}</span>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="h-7 w-7 p-0"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleFrequencyChange('bread', selections.bread + 1)
+                                  }}
+                                >
+                                  +
+                                </Button>
+                              </div>
+                            )}
+                          </div>
+                        </Card>
+
+                        <Card 
+                          className={`p-4 cursor-pointer transition-all ${
+                            selections.icecream > 0 ? 'border-primary border-2 bg-primary/5' : 'border-border hover:border-primary/50'
+                          }`}
+                          onClick={() => selections.icecream === 0 && handleFrequencyChange('icecream', 1)}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center">
+                                🍨
+                              </div>
+                              <span className="text-sm font-medium">Ice Cream / Sweet Desserts</span>
+                            </div>
+                            {selections.icecream > 0 && (
+                              <div className="flex items-center gap-2">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="h-7 w-7 p-0"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleFrequencyChange('icecream', selections.icecream - 1)
+                                  }}
+                                >
+                                  -
+                                </Button>
+                                <span className="text-sm font-bold w-8 text-center">{selections.icecream}</span>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="h-7 w-7 p-0"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleFrequencyChange('icecream', selections.icecream + 1)
+                                  }}
+                                >
+                                  +
+                                </Button>
+                              </div>
+                            )}
+                          </div>
+                        </Card>
+                      </div>
+
+                      <Button 
+                        onClick={() => setQuizStep(4)}
+                        size="lg" 
+                        className="w-full h-12 text-base font-bold mt-6"
+                        disabled={Object.values(selections).every(v => v === 0)}
+                      >
                         Continue
                         <ChevronRight className="w-4 h-4 ml-2" />
                       </Button>
