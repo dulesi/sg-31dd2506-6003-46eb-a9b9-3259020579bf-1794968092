@@ -104,6 +104,10 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <Card className="w-full max-w-md p-8 shadow-lg text-center space-y-6">
+          <div className="space-y-2">
+            <h1 className="text-2xl font-bold text-foreground">AdioSugar</h1>
+            <p className="text-sm text-muted">Your daily habit coach</p>
+          </div>
           <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
             <CheckCircle className="w-8 h-8 text-primary" />
           </div>
@@ -112,7 +116,7 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
               Account Created!
             </h2>
             <p className="text-sm text-muted">
-              Please check your email to verify your account.
+              Please check your email to verify your email address.
             </p>
           </div>
           <Button
@@ -131,16 +135,21 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <Card className="p-8 max-w-md w-full shadow-2xl rounded-2xl space-y-6">
-        <div className="text-center space-y-3">
-          <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
-            <Sparkles className="w-8 h-8 text-primary" />
+      <Card className="w-full max-w-md p-8 shadow-lg">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="text-center space-y-2">
+            <h1 className="text-2xl font-bold text-foreground">AdioSugar</h1>
+            <p className="text-sm text-muted">Your daily habit coach</p>
+            <h2 className="text-xl font-semibold text-foreground pt-2">
+              {isLogin ? 'Welcome Back' : 'Create Profile'}
+            </h2>
+            {!isLogin && (
+              <p className="text-xs text-muted pt-1">
+                Please check your email to verify your email address.
+              </p>
+            )}
           </div>
-          <h1 className="text-3xl font-bold text-foreground">AdioSugar</h1>
-          <p className="text-base text-muted">Your daily AI habit coach</p>
-        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
           {!isLogin && (
             <div className="space-y-2">
               <label htmlFor="name" className="text-sm font-medium text-foreground">
