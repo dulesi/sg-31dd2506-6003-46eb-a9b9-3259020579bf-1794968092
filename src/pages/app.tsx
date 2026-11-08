@@ -29,6 +29,11 @@ export default function App() {
     })
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        window.location.href = '/reset-password'
+        return
+      }
+      
       setSession(session)
       
       if (event === 'SIGNED_IN' && session?.user) {

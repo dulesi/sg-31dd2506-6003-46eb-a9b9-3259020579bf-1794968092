@@ -30,6 +30,8 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' && session) {
         onAuthSuccess()
+      } else if (event === 'PASSWORD_RECOVERY') {
+        window.location.href = '/reset-password'
       }
     })
 
@@ -119,7 +121,7 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
 
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
-        redirectTo: `${window.location.origin}/app`,
+        redirectTo: `${window.location.origin}/reset-password`,
       })
 
       if (error) throw error
