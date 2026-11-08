@@ -143,11 +143,6 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
             <h2 className="text-xl font-semibold text-foreground pt-2">
               {isLogin ? 'Welcome Back' : 'Create Profile'}
             </h2>
-            {!isLogin && (
-              <p className="text-xs text-muted pt-1">
-                Please check your email to verify your email address.
-              </p>
-            )}
           </div>
 
           {!isLogin && (
