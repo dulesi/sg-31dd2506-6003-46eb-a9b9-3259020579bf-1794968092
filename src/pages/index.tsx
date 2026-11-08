@@ -599,7 +599,7 @@ export default function LandingPage() {
                       <AlertTriangle className="w-3 h-3 mr-1" />
                       Analysis Complete
                     </Badge>
-                    <h2 className="text-xl font-bold text-foreground">Your Sugar Shock Results</h2>
+                    <h2 className="text-xl font-bold text-foreground">Your Sugar Intake Results</h2>
                   </div>
 
                   <div className="space-y-4">
@@ -620,7 +620,7 @@ export default function LandingPage() {
                         {calculatedResults.dailyGrams > 25 && (
                           <div className="pt-3 border-t border-foreground/20">
                             <p className="text-xs text-foreground">
-                              <span className="font-bold">Annual Balance:</span> ~{calculatedResults.annualKg.toFixed(1)}kg of sugar per year
+                              <span className="font-bold">Total Annual Sugar Intake:</span> ~{calculatedResults.annualKg.toFixed(1)}kg of sugar per year
                             </p>
                           </div>
                         )}
