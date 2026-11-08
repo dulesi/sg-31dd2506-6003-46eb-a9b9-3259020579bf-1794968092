@@ -3,7 +3,7 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { AlertCircle, Loader2, CheckCircle, Sparkles } from 'lucide-react'
+import { AlertCircle, Loader2, CheckCircle, Eye, EyeOff } from 'lucide-react'
 import { supabase } from '@/integrations/supabase/client'
 import { useToast } from '@/hooks/use-toast'
 
@@ -15,9 +15,15 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
   const [isLogin, setIsLogin] = useState(true)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [showVerificationMessage, setShowVerificationMessage] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [showForgotPassword, setShowForgotPassword] = useState(false)
+  const [resetEmail, setResetEmail] = useState('')
+  const [resetSent, setResetSent] = useState(false)
   const { toast } = useToast()
 
   useEffect(() => {
@@ -33,6 +39,12 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+
+    if (!isLogin && password !== confirmPassword) {
+      setError('Passwords do not match')
+      return
+    }
+
     setIsLoading(true)
 
     try {
@@ -100,6 +112,36 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
     }
   }
 
+  const handlePasswordReset = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError('')
+    setIsLoading(true)
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
+        redirectTo: `${window.location.origin}/app`,
+      })
+
+      if (error) throw error
+
+      setResetSent(true)
+      toast({
+        title: "Reset link sent!",
+        description: "Check your email for the password reset link.",
+        duration: 6000,
+      })
+    } catch (err: any) {
+      setError(err.message || 'Failed to send reset link')
+      toast({
+        title: "Error",
+        description: err.message || 'Failed to send reset link',
+        variant: "destructive",
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   if (showVerificationMessage) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -133,6 +175,108 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
     )
   }
 
+  if (showForgotPassword) {
+    if (resetSent) {
+      return (
+        <div className="min-h-screen bg-background flex items-center justify-center p-4">
+          <Card className="w-full max-w-md p-8 shadow-lg text-center space-y-6">
+            <div className="space-y-2">
+              <h1 className="text-2xl font-bold text-foreground">AdioSugar</h1>
+              <p className="text-sm text-muted">Your daily habit coach</p>
+            </div>
+            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+              <CheckCircle className="w-8 h-8 text-primary" />
+            </div>
+            <div className="space-y-2">
+              <h2 className="text-xl font-bold text-foreground">
+                Reset Link Sent!
+              </h2>
+              <p className="text-sm text-muted">
+                Check your email for the password reset link.
+              </p>
+            </div>
+            <Button
+              onClick={() => {
+                setShowForgotPassword(false)
+                setResetSent(false)
+                setResetEmail('')
+              }}
+              className="w-full"
+            >
+              Back to Sign In
+            </Button>
+          </Card>
+        </div>
+      )
+    }
+
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <Card className="w-full max-w-md p-8 shadow-lg">
+          <form onSubmit={handlePasswordReset} className="space-y-6">
+            <div className="text-center space-y-2">
+              <h1 className="text-2xl font-bold text-foreground">AdioSugar</h1>
+              <p className="text-sm text-muted">Your daily habit coach</p>
+              <h2 className="text-xl font-semibold text-foreground pt-2">
+                Reset Password
+              </h2>
+              <p className="text-xs text-muted">
+                Enter your email to receive a password reset link
+              </p>
+            </div>
+
+            {error && (
+              <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/30 flex items-start gap-2">
+                <AlertCircle className="w-4 h-4 text-destructive mt-0.5" />
+                <p className="text-sm text-destructive">{error}</p>
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <label htmlFor="reset-email" className="text-sm font-medium text-foreground">
+                Email Address
+              </label>
+              <Input
+                id="reset-email"
+                type="email"
+                placeholder="your@email.com"
+                value={resetEmail}
+                onChange={(e) => setResetEmail(e.target.value)}
+                className="h-12"
+                required
+              />
+            </div>
+
+            <Button
+              type="submit"
+              className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-base"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <Loader2 className="w-5 h-5 animate-spin mx-auto" />
+              ) : (
+                'Send Reset Link'
+              )}
+            </Button>
+
+            <div className="text-center">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowForgotPassword(false)
+                  setResetEmail('')
+                }}
+                className="text-sm text-muted hover:text-primary transition-colors font-medium"
+              >
+                Back to Sign In
+              </button>
+            </div>
+          </form>
+        </Card>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <Card className="w-full max-w-md p-8 shadow-lg">
@@ -145,20 +289,10 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
             </h2>
           </div>
 
-          {!isLogin && (
-            <div className="space-y-2">
-              <label htmlFor="name" className="text-sm font-medium text-foreground">
-                Your Name
-              </label>
-              <Input
-                id="name"
-                type="text"
-                placeholder="Enter your name"
-                value=""
-                onChange={(e) => {}}
-                className="h-12 animate-fade-in"
-                required={!isLogin}
-              />
+          {error && (
+            <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/30 flex items-start gap-2">
+              <AlertCircle className="w-4 h-4 text-destructive mt-0.5" />
+              <p className="text-sm text-destructive">{error}</p>
             </div>
           )}
 
@@ -181,16 +315,68 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
             <label htmlFor="password" className="text-sm font-medium text-foreground">
               Password
             </label>
-            <Input
-              id="password"
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="h-12"
-              required
-            />
+            <div className="relative">
+              <Input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="h-12 pr-10"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-foreground transition-colors"
+              >
+                {showPassword ? (
+                  <EyeOff className="w-4 h-4" />
+                ) : (
+                  <Eye className="w-4 h-4" />
+                )}
+              </button>
+            </div>
+            {isLogin && (
+              <button
+                type="button"
+                onClick={() => setShowForgotPassword(true)}
+                className="text-xs text-primary hover:underline font-medium"
+              >
+                Forgot password?
+              </button>
+            )}
           </div>
+
+          {!isLogin && (
+            <div className="space-y-2">
+              <label htmlFor="confirm-password" className="text-sm font-medium text-foreground">
+                Confirm Password
+              </label>
+              <div className="relative">
+                <Input
+                  id="confirm-password"
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  placeholder="••••••••"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="h-12 pr-10"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-foreground transition-colors"
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="w-4 h-4" />
+                  ) : (
+                    <Eye className="w-4 h-4" />
+                  )}
+                </button>
+              </div>
+            </div>
+          )}
 
           <Button
             type="submit"
@@ -207,10 +393,14 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
           </Button>
         </form>
 
-        <div className="text-center">
+        <div className="text-center pt-4">
           <button
             type="button"
-            onClick={() => setIsLogin(!isLogin)}
+            onClick={() => {
+              setIsLogin(!isLogin)
+              setError('')
+              setConfirmPassword('')
+            }}
             className="text-sm text-muted hover:text-primary transition-colors font-medium"
           >
             {isLogin ? "New here? Create your profile" : "Already have an account? Sign In"}
