@@ -61,6 +61,39 @@ export default function App() {
 
       if (data?.ai_context_summary) {
         setAiContextSummary(data.ai_context_summary)
+      } else {
+        const pendingQuiz = localStorage.getItem('pending_quiz_answers')
+        
+        if (pendingQuiz) {
+          try {
+            const quizData = JSON.parse(pendingQuiz)
+            console.log('Found pending quiz data, attempting to save for user:', userId)
+            
+            const { data: insertData, error: insertError } = await supabase
+              .from('user_quiz_answers')
+              .insert({
+                user_id: userId,
+                cravings_timing: (quizData.triggers || 'general') as string,
+                primary_goal: (quizData.primaryGoal || 'wellness') as string,
+                struggle_duration: (quizData.ageGroup || 'unknown') as string,
+                support_style: (quizData.gender || 'unknown') as string,
+                ai_context_summary: quizData.ai_context_summary as string
+              })
+              .select()
+
+            if (!insertError && insertData) {
+              console.log('Quiz data successfully saved on login:', insertData)
+              localStorage.removeItem('pending_quiz_answers')
+              if (insertData[0]?.ai_context_summary) {
+                setAiContextSummary(insertData[0].ai_context_summary)
+              }
+            } else {
+              console.error('Failed to insert pending quiz data:', insertError)
+            }
+          } catch (parseError) {
+            console.error('Error parsing pending quiz data:', parseError)
+          }
+        }
       }
     } catch (err) {
       console.error('Error fetching quiz answers:', err)

@@ -77,21 +77,41 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
         if (error) throw error
 
         if (data.user) {
-          if (quizData.ai_context_summary) {
-            const { error: insertError } = await supabase
-              .from('user_quiz_answers')
-              .insert({
-                user_id: data.user.id,
-                cravings_timing: quizData.triggers as string,
-                primary_goal: quizData.primaryGoal as string,
-                struggle_duration: quizData.ageGroup as string,
-                support_style: quizData.gender as string,
-                ai_context_summary: quizData.ai_context_summary as string
-              })
+          const pendingQuiz = localStorage.getItem('pending_quiz_answers')
+          
+          if (pendingQuiz) {
+            try {
+              const quizData = JSON.parse(pendingQuiz)
+              console.log('Attempting to insert quiz data for user:', data.user.id, quizData)
+              
+              const { data: insertData, error: insertError } = await supabase
+                .from('user_quiz_answers')
+                .insert({
+                  user_id: data.user.id,
+                  cravings_timing: (quizData.triggers || 'general') as string,
+                  primary_goal: (quizData.primaryGoal || 'wellness') as string,
+                  struggle_duration: (quizData.ageGroup || 'unknown') as string,
+                  support_style: (quizData.gender || 'unknown') as string,
+                  ai_context_summary: quizData.ai_context_summary as string
+                })
+                .select()
 
-            if (!insertError) {
-              localStorage.removeItem('pending_quiz_answers')
+              if (insertError) {
+                console.error('Failed to insert quiz answers:', insertError)
+                toast({
+                  title: "Note",
+                  description: "Your quiz data will be saved when you verify your email.",
+                  variant: "default",
+                })
+              } else {
+                console.log('Quiz data successfully inserted:', insertData)
+                localStorage.removeItem('pending_quiz_answers')
+              }
+            } catch (parseError) {
+              console.error('Error parsing quiz data:', parseError)
             }
+          } else {
+            console.log('No pending quiz data found in localStorage')
           }
 
           setShowVerificationMessage(true)

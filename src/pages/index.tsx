@@ -143,15 +143,25 @@ export default function LandingPage() {
 
     setCalculatedResults({ dailyGrams: totalGrams, annualKg, zone, zoneColor, zoneMessage })
 
-    const summary = `Daily sugar: ${totalGrams}g | Zone: ${zone} | Primary goal: ${quizData.primaryGoal || 'wellness'} | Triggers: ${quizData.triggers || 'general'}`
+    const summary = `Daily sugar: ${totalGrams}g | Zone: ${zone} | Goal: ${quizData.primaryGoal || 'wellness'} | Triggers: ${quizData.triggers || 'general'}`
     
-    localStorage.setItem('pending_quiz_answers', JSON.stringify({
-      ...quizData,
+    const quizPayload = {
+      gender: quizData.gender,
+      ageGroup: quizData.ageGroup,
+      height: quizData.height,
+      weight: quizData.weight,
+      primaryGoal: quizData.primaryGoal,
+      drinks: quizData.drinks,
+      sweets: quizData.sweets,
+      triggers: quizData.triggers,
       dailyGrams: totalGrams,
-      annualKg,
-      zone,
+      annualKg: annualKg,
+      zone: zone,
       ai_context_summary: summary
-    }))
+    }
+    
+    localStorage.setItem('pending_quiz_answers', JSON.stringify(quizPayload))
+    console.log('Quiz data saved to localStorage:', quizPayload)
   }
 
   const updateDrinkCount = (id: string, delta: number) => {
