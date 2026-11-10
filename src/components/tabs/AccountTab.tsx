@@ -2,8 +2,7 @@ import { useState } from 'react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Trophy, Calendar, Zap, RotateCcw, Trash2, LogOut } from 'lucide-react'
-import { clearAllData } from '@/lib/localStorage'
+import { Trophy, Calendar, Zap, RotateCcw, Trash2, LogOut, CheckCircle, Share2, Instagram, ExternalLink, Shield, FileText } from 'lucide-react'
 import { supabase } from '@/integrations/supabase/client'
 import { useToast } from '@/hooks/use-toast'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
@@ -17,9 +16,7 @@ interface AccountTabProps {
 }
 
 export default function AccountTab({ data, onUpdate, onReset }: AccountTabProps) {
-  const handleReset = () => {
-    setShowResetDialog(true)
-  }
+  const { toast } = useToast()
 
   const handleSignOut = async () => {
     try {
