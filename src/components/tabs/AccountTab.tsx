@@ -39,9 +39,6 @@ export default function AccountTab({ data, onUpdate, onReset }: AccountTabProps)
     }
   }
 
-  const confirmReset = () => {
-  }
-
   return (
     <div className="p-4 space-y-4">
       <div className="pt-2 pb-4">
@@ -245,7 +242,7 @@ export default function AccountTab({ data, onUpdate, onReset }: AccountTabProps)
           </button>
 
           <button
-            onClick={handleReset}
+            onClick={onReset}
             className="w-full p-4 rounded-xl border-2 border-border hover:border-primary/50 transition-all bg-card text-left group"
           >
             <div className="flex items-start gap-3">
