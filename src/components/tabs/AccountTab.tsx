@@ -1,7 +1,12 @@
-import { Button } from '@/components/ui/button'
+import { useState } from 'react'
 import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Trophy, Calendar, Zap, RotateCcw, Trash2, LogOut } from 'lucide-react'
+import { clearAllData } from '@/lib/localStorage'
+import { supabase } from '@/integrations/supabase/client'
+import { useToast } from '@/hooks/use-toast'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
-import { Trophy, Calendar, CheckCircle, RotateCcw, Share2, Instagram, ExternalLink, Trash2, FileText, Shield } from 'lucide-react'
 import { shareProgress } from '@/lib/share'
 import { deleteUserAccount } from '@/lib/auth'
 
@@ -12,6 +17,34 @@ interface AccountTabProps {
 }
 
 export default function AccountTab({ data, onUpdate, onReset }: AccountTabProps) {
+  const handleReset = () => {
+    setShowResetDialog(true)
+  }
+
+  const handleSignOut = async () => {
+    try {
+      const { error } = await supabase.auth.signOut()
+      
+      if (error) throw error
+      
+      toast({
+        title: "Signed out successfully",
+        description: "You have been logged out of your account.",
+      })
+      
+      window.location.href = '/'
+    } catch (err: any) {
+      toast({
+        title: "Error",
+        description: err.message || 'Failed to sign out',
+        variant: "destructive",
+      })
+    }
+  }
+
+  const confirmReset = () => {
+  }
+
   return (
     <div className="p-4 space-y-4">
       <div className="pt-2 pb-4">
@@ -197,6 +230,43 @@ export default function AccountTab({ data, onUpdate, onReset }: AccountTabProps)
 
       <Card className="p-6 shadow-md rounded-2xl space-y-4 border-destructive/20">
         <h2 className="text-lg font-bold text-foreground">Account Management</h2>
+        
+        <div className="space-y-3">
+          <button
+            onClick={handleSignOut}
+            className="w-full p-4 rounded-xl border-2 border-border hover:border-primary/50 transition-all bg-card text-left group"
+          >
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/10 transition-colors">
+                <LogOut className="w-5 h-5 text-foreground" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-foreground text-sm">Sign Out</p>
+                <p className="text-xs text-muted mt-0.5">Log out of your account on this device</p>
+              </div>
+            </div>
+          </button>
+
+          <button
+            onClick={handleReset}
+            className="w-full p-4 rounded-xl border-2 border-border hover:border-primary/50 transition-all bg-card text-left group"
+          >
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/20 transition-colors">
+                <RotateCcw className="w-5 h-5 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-foreground text-sm">Free Restart</p>
+                <p className="text-xs text-muted mt-0.5">Reset program & restart Day 1 (unlimited)</p>
+              </div>
+            </div>
+          </button>
+
+          <button
+            onClick={() => setShowDeleteDialog(true)}
+            className="w-full p-4 rounded-xl border-2 border-destructive/30 hover:border-destructive transition-all bg-card text-left group"
+          >
+        </div>
         
         <AlertDialog>
           <AlertDialogTrigger asChild>
