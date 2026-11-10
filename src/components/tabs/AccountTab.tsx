@@ -1,9 +1,11 @@
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
-import { Trophy, Calendar, CheckCircle, RotateCcw, Share2, Instagram, ExternalLink, Trash2, FileText, Shield } from 'lucide-react'
+import { Trophy, Calendar, CheckCircle, RotateCcw, Share2, Instagram, ExternalLink, Trash2, FileText, Shield, LogOut } from 'lucide-react'
 import { shareProgress } from '@/lib/share'
 import { deleteUserAccount } from '@/lib/auth'
+import { supabase } from '@/integrations/supabase/client'
+import { useToast } from '@/hooks/use-toast'
 
 interface AccountTabProps {
   data: any
@@ -12,6 +14,29 @@ interface AccountTabProps {
 }
 
 export default function AccountTab({ data, onUpdate, onReset }: AccountTabProps) {
+  const { toast } = useToast()
+
+  const handleSignOut = async () => {
+    try {
+      const { error } = await supabase.auth.signOut()
+      
+      if (error) throw error
+      
+      toast({
+        title: "Signed out successfully",
+        description: "You have been logged out of your account.",
+      })
+      
+      window.location.href = '/'
+    } catch (err: any) {
+      toast({
+        title: "Error",
+        description: err.message || 'Failed to sign out',
+        variant: "destructive",
+      })
+    }
+  }
+
   return (
     <div className="p-4 space-y-4">
       <div className="pt-2 pb-4">
@@ -198,33 +223,48 @@ export default function AccountTab({ data, onUpdate, onReset }: AccountTabProps)
       <Card className="p-6 shadow-md rounded-2xl space-y-4 border-destructive/20">
         <h2 className="text-lg font-bold text-foreground">Account Management</h2>
         
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <button className="w-full p-4 rounded-xl border-2 border-destructive/30 hover:bg-destructive/5 transition-all flex items-center gap-4 group">
-              <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center flex-shrink-0">
-                <Trash2 className="w-6 h-6 text-destructive" />
-              </div>
-              <div className="flex-1 text-left">
-                <div className="font-bold text-destructive">Delete Account</div>
-                <div className="text-sm text-muted">Permanently erase all your data</div>
-              </div>
-            </button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Are you sure you want to delete your account?</AlertDialogTitle>
-              <AlertDialogDescription>
-                This will permanently erase all your local data, streaks, and history. This action cannot be undone and you will be redirected to the home page.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={deleteUserAccount} className="bg-destructive hover:bg-destructive/90">
-                Permanently Delete
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <div className="space-y-3">
+          <button
+            onClick={handleSignOut}
+            className="w-full p-4 rounded-xl border-2 border-border hover:border-primary/50 transition-all flex items-center gap-4 group"
+          >
+            <div className="w-12 h-12 rounded-full bg-muted/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/10">
+              <LogOut className="w-6 h-6 text-muted group-hover:text-primary" />
+            </div>
+            <div className="flex-1 text-left">
+              <div className="font-bold text-foreground">Sign Out</div>
+              <div className="text-sm text-muted">Log out of your account on this device</div>
+            </div>
+          </button>
+
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <button className="w-full p-4 rounded-xl border-2 border-destructive/30 hover:bg-destructive/5 transition-all flex items-center gap-4 group">
+                <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center flex-shrink-0">
+                  <Trash2 className="w-6 h-6 text-destructive" />
+                </div>
+                <div className="flex-1 text-left">
+                  <div className="font-bold text-destructive">Delete Account</div>
+                  <div className="text-sm text-muted">Permanently erase all your data</div>
+                </div>
+              </button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you sure you want to delete your account?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will permanently erase all your local data, streaks, and history. This action cannot be undone and you will be redirected to the home page.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={deleteUserAccount} className="bg-destructive hover:bg-destructive/90">
+                  Permanently Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
       </Card>
     </div>
   )
