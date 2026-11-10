@@ -261,11 +261,6 @@ export default function AccountTab({ data, onUpdate, onReset }: AccountTabProps)
               </div>
             </div>
           </button>
-
-          <button
-            onClick={() => setShowDeleteDialog(true)}
-            className="w-full p-4 rounded-xl border-2 border-destructive/30 hover:border-destructive transition-all bg-card text-left group"
-          >
         </div>
         
         <AlertDialog>
