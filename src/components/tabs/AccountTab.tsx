@@ -1,11 +1,13 @@
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
-import { Trophy, Calendar, CheckCircle, RotateCcw, Share2, Instagram, ExternalLink, Trash2, FileText, Shield, LogOut } from 'lucide-react'
+import { Trophy, Calendar, CheckCircle, RotateCcw, Share2, Instagram, ExternalLink, Trash2, FileText, Shield, LogOut, User } from 'lucide-react'
 import { shareProgress } from '@/lib/share'
 import { deleteUserAccount } from '@/lib/auth'
 import { supabase } from '@/integrations/supabase/client'
 import { useToast } from '@/hooks/use-toast'
+import { useState, useEffect } from 'react'
 
 interface AccountTabProps {
   data: any
@@ -15,6 +17,62 @@ interface AccountTabProps {
 
 export default function AccountTab({ data, onUpdate, onReset }: AccountTabProps) {
   const { toast } = useToast()
+  const [fullName, setFullName] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+
+  useEffect(() => {
+    const loadUserName = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('id', user.id)
+          .single()
+        
+        if (profile?.full_name) {
+          setFullName(profile.full_name)
+        }
+      }
+    }
+    loadUserName()
+  }, [])
+
+  const handleNameUpdate = async () => {
+    if (!fullName.trim()) return
+    
+    setIsLoading(true)
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('No user found')
+
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({ full_name: fullName.trim() })
+        .eq('id', user.id)
+
+      if (profileError) throw profileError
+
+      const { error: metadataError } = await supabase.auth.updateUser({
+        data: { display_name: fullName.trim() }
+      })
+
+      if (metadataError) throw metadataError
+
+      toast({
+        title: "Name updated",
+        description: "Your name has been saved successfully.",
+      })
+    } catch (err: any) {
+      toast({
+        title: "Error",
+        description: err.message || 'Failed to update name',
+        variant: "destructive",
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   const handleSignOut = async () => {
     try {
@@ -43,6 +101,32 @@ export default function AccountTab({ data, onUpdate, onReset }: AccountTabProps)
         <h1 className="text-2xl font-bold text-foreground">Account</h1>
         <p className="text-sm text-muted">Your profile & settings</p>
       </div>
+
+      <Card className="p-6 shadow-md rounded-2xl space-y-4">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+            <User className="w-5 h-5 text-primary" />
+          </div>
+          <h2 className="text-lg font-bold text-foreground">Your Name</h2>
+        </div>
+        
+        <div className="flex gap-2">
+          <Input
+            type="text"
+            placeholder="Enter your name/nickname"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            className="flex-1"
+          />
+          <Button 
+            onClick={handleNameUpdate}
+            disabled={isLoading || !fullName.trim()}
+            className="bg-primary hover:bg-primary/90"
+          >
+            {isLoading ? 'Saving...' : 'Save'}
+          </Button>
+        </div>
+      </Card>
 
       <Card className="p-6 shadow-md rounded-2xl space-y-4">
         <h2 className="text-lg font-bold text-foreground">Progress Summary</h2>

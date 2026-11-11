@@ -9,6 +9,10 @@ import { useWindowSize } from '@/hooks/use-window-size'
 import { useToast } from '@/hooks/use-toast'
 import { incrementHackRefresh } from '@/lib/localStorage'
 import { shareProgress } from '@/lib/share'
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
+import { Trophy, CheckCircle, Calendar, AlertCircle, TrendingUp, Zap } from 'lucide-react'
+import CircularProgress from '@/components/CircularProgress'
+import { supabase } from '@/integrations/supabase/client'
 
 interface ProgressTabProps {
   data: any
@@ -24,12 +28,31 @@ export default function ProgressTab({ data, onUpdate, onPanicClick, aiContextSum
   const [isLoadingHack, setIsLoadingHack] = useState(false)
   const { width, height } = useWindowSize()
   const { toast } = useToast()
+  const [userName, setUserName] = useState('')
 
   const hackRefreshCount = data.hackRefreshesToday || 0
   const hackLimitReached = hackRefreshCount >= 10
 
   useEffect(() => {
     fetchDailyHack(false)
+  }, [])
+
+  useEffect(() => {
+    const loadUserName = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('id', user.id)
+          .single()
+        
+        if (profile?.full_name) {
+          setUserName(profile.full_name)
+        }
+      }
+    }
+    loadUserName()
   }, [])
 
   const fetchDailyHack = async (checkLimit: boolean = true) => {
@@ -94,7 +117,13 @@ export default function ProgressTab({ data, onUpdate, onPanicClick, aiContextSum
   const isCheckedInToday = data.lastCheckIn === new Date().toISOString().split('T')[0]
 
   return (
-    <div className="p-4 space-y-4">
+    <div className="p-4 space-y-6 pb-24">
+      <div className="pt-2">
+        <h1 className="text-2xl font-bold text-foreground">
+          Say AdioSugar{userName ? `, ${userName}` : ''}
+        </h1>
+        <p className="text-sm text-muted mt-1">Your daily progress & achievements</p>
+      </div>
       {showConfetti && <Confetti width={width} height={height} recycle={false} numberOfPieces={300} />}
 
       <div className="flex items-center justify-between pt-2 pb-4">
