@@ -116,17 +116,13 @@ export default function ProgressTab({ data, onUpdate, onPanicClick, aiContextSum
 
   return (
     <div className="p-4 space-y-6 pb-24">
-      <div className="pt-2">
-        <h1 className="text-3xl font-bold text-foreground">
-          Say AdioSugar{userName ? `, ${userName}` : ''}
-        </h1>
-        <p className="text-sm text-muted">Your 30-Day Journey</p>
-      </div>
       {showConfetti && <Confetti width={width} height={height} recycle={false} numberOfPieces={300} />}
 
       <div className="flex items-center justify-between pt-2 pb-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">AdioSugar</h1>
+          <h1 className="text-2xl font-bold text-foreground">
+            Say AdioSugar{userName ? `, ${userName}` : ''}
+          </h1>
           <p className="text-sm text-muted">Your 30-Day Journey</p>
         </div>
         <div className="flex items-center gap-2">
