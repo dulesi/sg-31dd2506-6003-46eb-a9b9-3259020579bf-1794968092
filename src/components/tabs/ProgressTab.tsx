@@ -117,10 +117,10 @@ export default function ProgressTab({ data, onUpdate, onPanicClick, aiContextSum
   return (
     <div className="p-4 space-y-6 pb-24">
       <div className="pt-2">
-        <h1 className="text-2xl font-bold text-foreground">
+        <h1 className="text-3xl font-bold text-foreground">
           Say AdioSugar{userName ? `, ${userName}` : ''}
         </h1>
-        <p className="text-sm text-muted mt-1">Your daily progress & achievements</p>
+        <p className="text-sm text-muted">Your 30-Day Journey</p>
       </div>
       {showConfetti && <Confetti width={width} height={height} recycle={false} numberOfPieces={300} />}
 
