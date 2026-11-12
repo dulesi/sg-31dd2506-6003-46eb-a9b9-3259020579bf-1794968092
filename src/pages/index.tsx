@@ -212,34 +212,56 @@ export default function LandingPage() {
     setIsRegistering(true)
 
     try {
+      console.log('=== REGISTRATION START ===')
+      console.log('Email:', email)
+      console.log('Quiz Data:', quizData)
+      console.log('Calculated Results:', calculatedResults)
+
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
       })
 
+      console.log('SignUp Response:', { data, error })
+
       if (error) throw error
 
       if (data.user) {
+        console.log('User created:', data.user.id)
+        
         const summary = `Daily sugar: ${calculatedResults.dailyGrams}g | Zone: ${calculatedResults.zone} | Goal: ${quizData.primaryGoal || 'wellness'} | Triggers: ${quizData.triggers || 'general'}`
         
-        const { error: insertError } = await supabase
-          .from('user_quiz_answers')
-          .insert({
-            user_id: data.user.id,
-            cravings_timing: quizData.triggers as string,
-            primary_goal: quizData.primaryGoal as string,
-            struggle_duration: quizData.ageGroup as string,
-            support_style: quizData.gender as string,
-            ai_context_summary: summary
-          })
+        const quizPayload = {
+          user_id: data.user.id,
+          cravings_timing: quizData.triggers as string,
+          primary_goal: quizData.primaryGoal as string,
+          struggle_duration: quizData.ageGroup as string,
+          support_style: quizData.gender as string,
+          ai_context_summary: summary
+        }
+        
+        console.log('Quiz Payload to Insert:', quizPayload)
 
-        if (!insertError) {
+        const { data: insertData, error: insertError } = await supabase
+          .from('user_quiz_answers')
+          .insert(quizPayload)
+          .select()
+
+        console.log('Insert Response:', { insertData, insertError })
+
+        if (insertError) {
+          console.error('Quiz insert error:', insertError)
+          // Don't throw - allow user to continue even if quiz save fails
+        } else {
+          console.log('Quiz data saved successfully!')
           localStorage.removeItem('pending_quiz_answers')
         }
 
+        console.log('Redirecting to /app')
         window.location.href = '/app'
       }
     } catch (err: any) {
+      console.error('Registration error:', err)
       setRegError(err.message || 'Registration failed')
     } finally {
       setIsRegistering(false)
