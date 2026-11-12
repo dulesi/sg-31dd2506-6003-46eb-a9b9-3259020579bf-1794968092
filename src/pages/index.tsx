@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
-import { Sparkles, ChevronRight, CheckCircle, Zap, Brain, Heart, Shield, Loader2, ArrowRight, AlertTriangle, TrendingUp, Lock, Plus, Minus, Coffee, Apple, Candy, Cake, IceCream, Droplets } from 'lucide-react'
+import { Sparkles, ChevronRight, CheckCircle, Zap, Brain, Heart, Shield, Loader2, ArrowRight, AlertTriangle, TrendingUp, Lock, Plus, Minus, Coffee, Apple, Candy, Cake, IceCream, Droplets, Eye, EyeOff } from 'lucide-react'
 import Link from 'next/link'
 import { supabase } from '@/integrations/supabase/client'
 
@@ -84,6 +84,9 @@ export default function LandingPage() {
   })
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isRegistering, setIsRegistering] = useState(false)
   const [regError, setRegError] = useState('')
 
@@ -200,6 +203,12 @@ export default function LandingPage() {
   const handleRegistration = async (e: React.FormEvent) => {
     e.preventDefault()
     setRegError('')
+
+    if (password !== confirmPassword) {
+      setRegError('Passwords do not match')
+      return
+    }
+
     setIsRegistering(true)
 
     try {
@@ -746,15 +755,54 @@ export default function LandingPage() {
 
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-foreground">Password</label>
-                      <Input
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="Minimum 6 characters"
-                        required
-                        minLength={6}
-                        className="h-11"
-                      />
+                      <div className="relative">
+                        <Input
+                          type={showPassword ? 'text' : 'password'}
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          placeholder="Minimum 6 characters"
+                          required
+                          minLength={6}
+                          className="h-11 pr-10"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-foreground transition-colors"
+                        >
+                          {showPassword ? (
+                            <EyeOff className="w-4 h-4" />
+                          ) : (
+                            <Eye className="w-4 h-4" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-foreground">Confirm Password</label>
+                      <div className="relative">
+                        <Input
+                          type={showConfirmPassword ? 'text' : 'password'}
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          placeholder="Re-enter your password"
+                          required
+                          minLength={6}
+                          className="h-11 pr-10"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-foreground transition-colors"
+                        >
+                          {showConfirmPassword ? (
+                            <EyeOff className="w-4 h-4" />
+                          ) : (
+                            <Eye className="w-4 h-4" />
+                          )}
+                        </button>
+                      </div>
                     </div>
                   </div>
 
