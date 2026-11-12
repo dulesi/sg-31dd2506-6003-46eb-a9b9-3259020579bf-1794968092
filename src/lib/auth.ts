@@ -1,3 +1,5 @@
+import { supabase } from '@/integrations/supabase/client'
+
 const AUTH_KEY = 'adiosugar_user_logged_in'
 const USER_KEY = 'adiosugar_user_profile'
 
@@ -37,12 +39,31 @@ export function logoutUser(): void {
   localStorage.removeItem(USER_KEY)
 }
 
-export function deleteUserAccount(): void {
+export async function deleteUserAccount(): Promise<void> {
   if (typeof window === 'undefined') return
   
-  localStorage.clear()
-  
-  if (typeof window !== 'undefined') {
+  try {
+    // Call Supabase RPC to delete user from all tables + auth
+    const { error } = await supabase.rpc('delete_user_account')
+    
+    if (error) {
+      console.error('Failed to delete user account from Supabase:', error)
+      throw error
+    }
+    
+    // Clear all localStorage data
+    localStorage.clear()
+    
+    // Sign out from Supabase session
+    await supabase.auth.signOut()
+    
+    // Redirect to home page
+    window.location.href = '/'
+  } catch (err) {
+    console.error('Error deleting account:', err)
+    // Even if Supabase delete fails, clear local data and redirect
+    localStorage.clear()
+    await supabase.auth.signOut()
     window.location.href = '/'
   }
 }

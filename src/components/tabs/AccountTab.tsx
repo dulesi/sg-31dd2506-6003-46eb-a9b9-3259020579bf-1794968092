@@ -342,7 +342,20 @@ export default function AccountTab({ data, onUpdate, onReset }: AccountTabProps)
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={deleteUserAccount} className="bg-destructive hover:bg-destructive/90">
+                <AlertDialogAction 
+                  onClick={async () => {
+                    try {
+                      await deleteUserAccount()
+                    } catch (err: any) {
+                      toast({
+                        title: "Error",
+                        description: err.message || 'Failed to delete account',
+                        variant: "destructive",
+                      })
+                    }
+                  }} 
+                  className="bg-destructive hover:bg-destructive/90"
+                >
                   Permanently Delete
                 </AlertDialogAction>
               </AlertDialogFooter>
