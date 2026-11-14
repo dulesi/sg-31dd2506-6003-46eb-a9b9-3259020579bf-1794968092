@@ -163,8 +163,14 @@ export default function LandingPage() {
       ai_context_summary: summary
     }
     
+    console.log('=== SAVING QUIZ DATA TO LOCALSTORAGE ===')
+    console.log('Quiz Payload:', quizPayload)
     localStorage.setItem('pending_quiz_answers', JSON.stringify(quizPayload))
-    console.log('Quiz data saved to localStorage:', quizPayload)
+    
+    // Verify it was saved
+    const verified = localStorage.getItem('pending_quiz_answers')
+    console.log('Verified localStorage save:', verified)
+    console.log('=== LOCALSTORAGE SAVE COMPLETE ===')
   }
 
   const updateDrinkCount = (id: string, delta: number) => {
