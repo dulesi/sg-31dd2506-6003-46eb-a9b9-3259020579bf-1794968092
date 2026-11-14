@@ -214,8 +214,6 @@ export default function LandingPage() {
     try {
       console.log('=== REGISTRATION START ===')
       console.log('Email:', email)
-      console.log('Quiz Data:', quizData)
-      console.log('Calculated Results:', calculatedResults)
 
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -229,32 +227,46 @@ export default function LandingPage() {
       if (data.user) {
         console.log('User created:', data.user.id)
         
-        const summary = `Daily sugar: ${calculatedResults.dailyGrams}g | Zone: ${calculatedResults.zone} | Goal: ${quizData.primaryGoal || 'wellness'} | Triggers: ${quizData.triggers || 'general'}`
+        // Load quiz data from localStorage
+        const savedQuizData = localStorage.getItem('pending_quiz_answers')
+        console.log('Saved quiz data from localStorage:', savedQuizData)
         
-        const quizPayload = {
-          user_id: data.user.id,
-          cravings_timing: quizData.triggers as string,
-          primary_goal: quizData.primaryGoal as string,
-          struggle_duration: quizData.ageGroup as string,
-          support_style: quizData.gender as string,
-          ai_context_summary: summary
-        }
-        
-        console.log('Quiz Payload to Insert:', quizPayload)
+        if (savedQuizData) {
+          try {
+            const parsedData = JSON.parse(savedQuizData)
+            console.log('Parsed quiz data:', parsedData)
+            
+            // Map quiz data to database columns
+            const quizPayload = {
+              user_id: data.user.id,
+              cravings_timing: parsedData.triggers || 'general',
+              primary_goal: parsedData.primaryGoal || 'wellness',
+              struggle_duration: parsedData.ageGroup || '18-30',
+              support_style: parsedData.gender || 'Male',
+              ai_context_summary: parsedData.ai_context_summary || `Daily sugar: ${parsedData.dailyGrams || 0}g`
+            }
+            
+            console.log('Quiz Payload to Insert:', quizPayload)
 
-        const { data: insertData, error: insertError } = await supabase
-          .from('user_quiz_answers')
-          .insert(quizPayload)
-          .select()
+            const { data: insertData, error: insertError } = await supabase
+              .from('user_quiz_answers')
+              .insert(quizPayload)
+              .select()
 
-        console.log('Insert Response:', { insertData, insertError })
+            console.log('Insert Response:', { insertData, insertError })
 
-        if (insertError) {
-          console.error('Quiz insert error:', insertError)
-          // Don't throw - allow user to continue even if quiz save fails
+            if (insertError) {
+              console.error('Quiz insert error:', insertError)
+              // Don't throw - allow user to continue even if quiz save fails
+            } else {
+              console.log('Quiz data saved successfully!')
+              localStorage.removeItem('pending_quiz_answers')
+            }
+          } catch (parseError) {
+            console.error('Failed to parse quiz data:', parseError)
+          }
         } else {
-          console.log('Quiz data saved successfully!')
-          localStorage.removeItem('pending_quiz_answers')
+          console.log('No quiz data found in localStorage')
         }
 
         console.log('Redirecting to /app')
