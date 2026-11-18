@@ -20,15 +20,26 @@ export default function App() {
   const [aiContextSummary, setAiContextSummary] = useState<string>('')
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-      if (session?.user) {
-        fetchUserQuizAnswers(session.user.id)
+    const initializeAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        setSession(session)
+        
+        if (session?.user) {
+          await fetchUserQuizAnswers(session.user.id)
+        }
+      } catch (error) {
+        console.error('Error initializing auth:', error)
+      } finally {
+        setIsLoading(false)
       }
-      setIsLoading(false)
-    })
+    }
+
+    initializeAuth()
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth state changed:', event, session?.user?.id)
+      
       if (event === 'PASSWORD_RECOVERY') {
         window.location.href = '/reset-password'
         return
@@ -37,9 +48,14 @@ export default function App() {
       setSession(session)
       
       if (event === 'SIGNED_IN' && session?.user) {
-        await fetchUserQuizAnswers(session.user.id)
+        try {
+          await fetchUserQuizAnswers(session.user.id)
+        } finally {
+          setIsLoading(false)
+        }
       } else if (event === 'SIGNED_OUT') {
         setAiContextSummary('')
+        setIsLoading(false)
       }
     })
 
@@ -130,6 +146,22 @@ export default function App() {
     setActiveTab('progress')
   }
 
+  const handleAuthSuccess = async () => {
+    setIsLoading(true)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      if (session?.user) {
+        setSession(session)
+        await fetchUserQuizAnswers(session.user.id)
+      }
+    } catch (error) {
+      console.error('Error after auth success:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -139,7 +171,7 @@ export default function App() {
   }
 
   if (!session) {
-    return <AuthScreen onAuthSuccess={() => setIsLoading(true)} />
+    return <AuthScreen onAuthSuccess={handleAuthSuccess} />
   }
 
   return (
