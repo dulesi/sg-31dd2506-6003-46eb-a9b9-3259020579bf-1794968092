@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label'
 import { AlertCircle, Loader2, CheckCircle, Eye, EyeOff } from 'lucide-react'
 import { supabase } from '@/integrations/supabase/client'
 import { useToast } from '@/hooks/use-toast'
+import Link from 'next/link'
 
 interface AuthScreenProps {
   onAuthSuccess: () => void
@@ -432,13 +433,13 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
         <div className="pt-4 border-t border-border text-center space-y-2">
           <p className="text-xs text-muted">
             By continuing, you agree to our{' '}
-            <a href="https://adiosugar.com/terms" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+            <Link href="/terms" className="text-primary hover:underline">
               Terms of Service
-            </a>{' '}
+            </Link>{' '}
             and{' '}
-            <a href="https://adiosugar.com/privacy" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+            <Link href="/privacy" className="text-primary hover:underline">
               Privacy Policy
-            </a>
+            </Link>
           </p>
         </div>
       </Card>

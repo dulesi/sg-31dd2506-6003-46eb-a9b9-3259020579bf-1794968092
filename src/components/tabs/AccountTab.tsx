@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
 import { Trophy, Calendar, CheckCircle, RotateCcw, Share2, Instagram, ExternalLink, Trash2, FileText, Shield, LogOut, User } from 'lucide-react'
+import Link from 'next/link'
 import { shareProgress } from '@/lib/share'
 import { deleteUserAccount } from '@/lib/auth'
 import { supabase } from '@/integrations/supabase/client'
@@ -243,10 +244,8 @@ export default function AccountTab({ data, onUpdate, onReset }: AccountTabProps)
         <h2 className="text-lg font-bold text-foreground">Legal & Information</h2>
         
         <div className="space-y-3">
-          <a
-            href="https://adiosugar.com/privacy"
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            href="/privacy"
             className="w-full p-4 rounded-xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all flex items-center gap-4 group"
           >
             <div className="w-12 h-12 rounded-full bg-muted/10 flex items-center justify-center flex-shrink-0">
@@ -257,12 +256,10 @@ export default function AccountTab({ data, onUpdate, onReset }: AccountTabProps)
               <div className="text-sm text-muted">How we protect your data</div>
             </div>
             <ExternalLink className="w-5 h-5 text-muted group-hover:text-primary" />
-          </a>
+          </Link>
 
-          <a
-            href="https://adiosugar.com/terms"
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            href="/terms"
             className="w-full p-4 rounded-xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all flex items-center gap-4 group"
           >
             <div className="w-12 h-12 rounded-full bg-muted/10 flex items-center justify-center flex-shrink-0">
@@ -273,7 +270,7 @@ export default function AccountTab({ data, onUpdate, onReset }: AccountTabProps)
               <div className="text-sm text-muted">User agreement & guidelines</div>
             </div>
             <ExternalLink className="w-5 h-5 text-muted group-hover:text-primary" />
-          </a>
+          </Link>
         </div>
       </Card>
 
