@@ -1,6 +1,6 @@
 ---
 title: AdioSugar Homepage (/)
-status: in_progress
+status: done
 priority: urgent
 type: feature
 tags: [marketing, homepage, routing]
@@ -14,16 +14,16 @@ Create and register a new home page on root route `/`. Must not modify existing 
 Sections required: Sticky nav, Hero (2-col), How It Works (3 cards), Features (2x2), Comparison (crash diet vs AdioSugar), FAQ accordion, Final CTA banner, Footer (multi-column).
 
 ## Checklist
-- [ ] Create src/components/home/HomeNav.tsx - sticky nav, logo, anchor links, mobile menu, Sign In -> /app, Quiz CTA -> /quiz
-- [ ] Create src/components/home/HomeHero.tsx - badge, H1, subheading, CTAs, phone mockup preview (Day 12/30, streak, panic button, energy stability)
-- [ ] Create src/components/home/HomeHowItWorks.tsx - 3 step cards with badges 01/02/03
-- [ ] Create src/components/home/HomeFeatures.tsx - 2x2 grid, 4 feature cards
-- [ ] Create src/components/home/HomeComparison.tsx - side by side crash restriction vs AdioSugar system
-- [ ] Create src/components/home/HomeFAQ.tsx - accordion with 4 Q&A
-- [ ] Create src/components/home/HomeCTA.tsx - final banner with quiz CTA
-- [ ] Create src/components/home/HomeFooter.tsx - brand/nav/legal columns
-- [ ] Create src/pages/index.tsx composing all sections with SEO
-- [ ] Verify no broken links, no AI wording, check_for_errors clean
+- [x] Create src/components/home/HomeNav.tsx - sticky nav, logo, anchor links, mobile menu, Sign In -> /app, Quiz CTA -> /quiz
+- [x] Create src/components/home/HomeHero.tsx - badge, H1, subheading, CTAs, phone mockup preview (Day 12/30, streak, panic button, energy stability)
+- [x] Create src/components/home/HomeHowItWorks.tsx - 3 step cards with badges 01/02/03
+- [x] Create src/components/home/HomeFeatures.tsx - 2x2 grid, 4 feature cards
+- [x] Create src/components/home/HomeComparison.tsx - side by side crash restriction vs AdioSugar system
+- [x] Create src/components/home/HomeFAQ.tsx - accordion with 4 Q&A
+- [x] Create src/components/home/HomeCTA.tsx - final banner with quiz CTA
+- [x] Create src/components/home/HomeFooter.tsx - brand/nav/legal columns
+- [x] Create src/pages/index.tsx composing all sections with SEO
+- [x] Verify no broken links, no AI wording, check_for_errors clean
 
 ## Acceptance
 - Visiting / shows full marketing homepage with working nav, quiz CTA to /quiz, sign in CTA to /app, footer links to /privacy /terms /reset-password all functional, no console/build errors.
