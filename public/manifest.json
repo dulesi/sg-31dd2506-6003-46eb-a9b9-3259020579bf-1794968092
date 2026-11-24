@@ -2,7 +2,7 @@
   "name": "AdioSugar - 30-Day Sugar Detox",
   "short_name": "AdioSugar",
   "description": "Premium 30-day sugar detox program for metabolic health, stable energy, and craving control",
-  "start_url": "/",
+  "start_url": "/app",
   "display": "standalone",
   "background_color": "#FAFAFA",
   "theme_color": "#10B981",
