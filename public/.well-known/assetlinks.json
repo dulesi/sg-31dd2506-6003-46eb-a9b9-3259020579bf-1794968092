@@ -1,0 +1,10 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.adiosugar.twa",
+      "sha256_cert_fingerprints": ["D8:1F:BA:1F:F8:3F:2D:61:35:97:21:BF:49:F1:B2:1F:AE:BB:30:FE:D1:78:2F:CF:05:ED:01:78:F1:F5:2F:84"]
+    }
+  }
+]
