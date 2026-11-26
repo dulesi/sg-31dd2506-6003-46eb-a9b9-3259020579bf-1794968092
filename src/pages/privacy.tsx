@@ -1,7 +1,7 @@
-import Link from 'next/link'
-import { ArrowLeft, Shield } from 'lucide-react'
-import { Card } from '@/components/ui/card'
-import { SEO } from '@/components/SEO'
+import Link from "next/link"
+import { ArrowLeft, Shield } from "lucide-react"
+import { Card } from "@/components/ui/card"
+import { SEO } from "@/components/SEO"
 
 export default function PrivacyPolicy() {
   return (
@@ -15,7 +15,7 @@ export default function PrivacyPolicy() {
             </Link>
             <div>
               <h1 className="text-xl font-bold text-foreground">Privacy Policy</h1>
-              <p className="text-xs text-muted">Last updated: November 2026</p>
+              <p className="text-xs text-muted">Last Updated: November 26, 2026</p>
             </div>
           </div>
 
@@ -24,57 +24,67 @@ export default function PrivacyPolicy() {
               <Shield className="w-6 h-6 text-primary" />
             </div>
             <p className="text-sm text-muted leading-relaxed">
-              At AdioSugar, we take your privacy seriously. This Privacy Policy explains how we collect, use, and protect your personal information when you use our application.
+              This Privacy Policy governs how AdioSugar (<a href="https://adiosugar.com" className="text-primary hover:underline">https://adiosugar.com</a> and the com.adiosugar.twa Android application), operated by Dusan Gacic (&ldquo;Operator,&rdquo; &ldquo;we,&rdquo; &ldquo;us,&rdquo; or &ldquo;our&rdquo;), collects, uses, stores, and deletes your personal information.
             </p>
           </Card>
 
           <Card className="p-6 shadow-md rounded-2xl space-y-3">
             <h2 className="text-lg font-bold text-foreground">1. Information We Collect</h2>
             <p className="text-sm text-muted leading-relaxed">
-              We collect information you provide directly to us, such as your email address, name, and responses to our sugar intake quiz. We also collect usage data related to your progress within the app, including streaks, check-ins, and craving logs.
+              We collect only the minimum personal data strictly required for the Service to function:
+            </p>
+            <ul className="space-y-2 text-sm text-muted leading-relaxed list-disc pl-5">
+              <li><span className="font-semibold text-foreground">Email Address:</span> Collected solely for account authentication, sign-in access, and essential service-related communication.</li>
+              <li><span className="font-semibold text-foreground">Optional Display Name / Nickname:</span> Within the application, you may voluntarily enter a name, nickname, or any custom text solely for personalized in-app greeting and display purposes. You are not required to provide your real legal name.</li>
+              <li><span className="font-semibold text-foreground">Basic Technical Data:</span> Standard operational logs (such as IP address, browser/device type, and error diagnostics) automatically processed by our hosting infrastructure to maintain security, prevent abuse, and ensure stability.</li>
+            </ul>
+            <p className="text-sm text-muted leading-relaxed">
+              We do not collect financial/payment card details, precise geolocation, contacts, photos, or sensitive medical records, and we do not sell, rent, or trade your personal data to any third parties.
             </p>
           </Card>
 
           <Card className="p-6 shadow-md rounded-2xl space-y-3">
-            <h2 className="text-lg font-bold text-foreground">2. How We Use Your Information</h2>
+            <h2 className="text-lg font-bold text-foreground">2. Data Storage & Third-Party Infrastructure</h2>
             <p className="text-sm text-muted leading-relaxed">
-              Your information is used to provide and personalize your 30-day sugar detox program, track your progress, send you relevant notifications, and improve our services. We do not sell your personal data to third parties.
+              All account data (your email address and optional display name/nickname) is securely stored and processed using Supabase (authentication and database infrastructure) and delivered via Vercel (web hosting) and Google Play (Android application distribution). These providers process data strictly to operate the Service under industry-standard encryption and security practices.
             </p>
           </Card>
 
           <Card className="p-6 shadow-md rounded-2xl space-y-3">
-            <h2 className="text-lg font-bold text-foreground">3. Data Storage & Security</h2>
+            <h2 className="text-lg font-bold text-foreground">3. Instant Self-Service Account & Data Deletion (Absolute User Control)</h2>
             <p className="text-sm text-muted leading-relaxed">
-              Your data is stored securely using industry-standard encryption via our backend provider, Supabase. Access to your personal data is restricted to authenticated sessions tied to your account.
+              You maintain complete and immediate control over your personal data at all times:
+            </p>
+            <ul className="space-y-2 text-sm text-muted leading-relaxed list-disc pl-5">
+              <li>Inside the application, you can permanently delete your account and 100% of your stored data (including your email address and optional name/nickname) at any moment with a single click on the &ldquo;Delete account (permanently erase all your data)&rdquo; button.</li>
+              <li>Deletion is immediate, irreversible, and requires no additional verification steps or manual approval. Once triggered, the Service retains zero personal data about you.</li>
+            </ul>
+            <p className="text-sm text-muted leading-relaxed">
+              If you no longer have access to the application and wish to request assistance, you may also contact us at support@adiosugar.com.
             </p>
           </Card>
 
           <Card className="p-6 shadow-md rounded-2xl space-y-3">
-            <h2 className="text-lg font-bold text-foreground">4. Your Rights</h2>
+            <h2 className="text-lg font-bold text-foreground">4. Children&apos;s Privacy</h2>
             <p className="text-sm text-muted leading-relaxed">
-              You have the right to access, update, or delete your personal data at any time. You can manage your account settings or permanently delete your account directly from the Account section of the app.
+              The Service is intended strictly for individuals aged 18 and older. We do not knowingly collect personal information from anyone under 18. If we become aware that a minor has submitted personal data, it will be permanently deleted immediately.
             </p>
           </Card>
 
           <Card className="p-6 shadow-md rounded-2xl space-y-3">
-            <h2 className="text-lg font-bold text-foreground">5. Cookies & Tracking</h2>
+            <h2 className="text-lg font-bold text-foreground">5. Changes to This Privacy Policy & Contact Information</h2>
             <p className="text-sm text-muted leading-relaxed">
-              We use local storage and session cookies solely to maintain your login session and app preferences. We do not use third-party advertising trackers.
+              We reserve the right to update this Privacy Policy at any time. Any changes will be posted on this page with an updated effective date.
             </p>
-          </Card>
-
-          <Card className="p-6 shadow-md rounded-2xl space-y-3">
-            <h2 className="text-lg font-bold text-foreground">6. Changes to This Policy</h2>
             <p className="text-sm text-muted leading-relaxed">
-              We may update this Privacy Policy from time to time. We will notify you of any significant changes via email or an in-app notification.
+              For any privacy inquiries or data requests, contact:
             </p>
-          </Card>
-
-          <Card className="p-6 shadow-md rounded-2xl space-y-3">
-            <h2 className="text-lg font-bold text-foreground">7. Contact Us</h2>
-            <p className="text-sm text-muted leading-relaxed">
-              If you have any questions about this Privacy Policy, please contact us at support@adiosugar.com.
-            </p>
+            <ul className="space-y-1 text-sm text-muted leading-relaxed">
+              <li><span className="font-semibold text-foreground">Operator:</span> Dusan Gacic</li>
+              <li><span className="font-semibold text-foreground">Email:</span> support@adiosugar.com</li>
+              <li><span className="font-semibold text-foreground">Website:</span> <a href="https://adiosugar.com" className="text-primary hover:underline">https://adiosugar.com</a></li>
+              <li><span className="font-semibold text-foreground">Terms of Use:</span> <Link href="/terms" className="text-primary hover:underline">https://adiosugar.com/terms</Link></li>
+            </ul>
           </Card>
 
           <div className="pb-8 text-center">
