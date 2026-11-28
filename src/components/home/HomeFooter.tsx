@@ -31,6 +31,7 @@ export function HomeFooter() {
             <ul className="space-y-3 text-sm">
               <li><Link href="/privacy" className="text-muted hover:text-primary">Privacy Policy</Link></li>
               <li><Link href="/terms" className="text-muted hover:text-primary">Terms of Service</Link></li>
+              <li><Link href="/delete-account" className="text-muted hover:text-primary">Delete Account</Link></li>
               <li><Link href="/reset-password" className="text-muted hover:text-primary">Password Reset</Link></li>
             </ul>
           </div>
