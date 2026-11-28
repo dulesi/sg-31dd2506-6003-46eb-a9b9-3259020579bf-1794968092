@@ -36,6 +36,7 @@ export default function PrivacyPolicy() {
             <ul className="space-y-2 text-sm text-muted leading-relaxed list-disc pl-5">
               <li><span className="font-semibold text-foreground">Email Address:</span> Collected solely for account authentication, sign-in access, and essential service-related communication.</li>
               <li><span className="font-semibold text-foreground">Optional Display Name / Nickname:</span> Within the application, you may voluntarily enter a name, nickname, or any custom text solely for personalized in-app greeting and display purposes. You are not required to provide your real legal name.</li>
+              <li><span className="font-semibold text-foreground">Self-Tracking & Quiz Data:</span> Any quiz responses (such as sugar-habit or energy-dip answers), daily streaks, craving check-ins, or personal notes you enter are stored in Supabase tied to your account solely for your own personal self-tracking within the Service. These entries are personal habit logs only, not medical records or clinical health data.</li>
               <li><span className="font-semibold text-foreground">Basic Technical Data:</span> Standard operational logs (such as IP address, browser/device type, and error diagnostics) automatically processed by our hosting infrastructure to maintain security, prevent abuse, and ensure stability.</li>
             </ul>
             <p className="text-sm text-muted leading-relaxed">
@@ -46,17 +47,24 @@ export default function PrivacyPolicy() {
           <Card className="p-6 shadow-md rounded-2xl space-y-3">
             <h2 className="text-lg font-bold text-foreground">2. Data Storage & Third-Party Infrastructure</h2>
             <p className="text-sm text-muted leading-relaxed">
-              All account data (your email address and optional display name/nickname) is securely stored and processed using Supabase (authentication and database infrastructure) and delivered via Vercel (web hosting) and Google Play (Android application distribution). These providers process data strictly to operate the Service under industry-standard encryption and security practices.
+              All account data (your email address, optional display name/nickname, and personal self-tracking/quiz entries) is securely stored and processed using Supabase (authentication and database infrastructure) and delivered via Vercel (web hosting) and Google Play (Android application distribution). These providers process data strictly to operate the Service under industry-standard encryption and security practices.
             </p>
           </Card>
 
           <Card className="p-6 shadow-md rounded-2xl space-y-3">
-            <h2 className="text-lg font-bold text-foreground">3. Instant Self-Service Account & Data Deletion (Absolute User Control)</h2>
+            <h2 className="text-lg font-bold text-foreground">3. Cookies & Local Storage</h2>
+            <p className="text-sm text-muted leading-relaxed">
+              We use only strictly necessary session tokens, local storage entries, and authentication cookies required to keep you signed in, maintain your session state, and ensure core app functionality on web and Android. We do not use advertising cookies, cross-site behavioral tracking, or third-party ad networks.
+            </p>
+          </Card>
+
+          <Card className="p-6 shadow-md rounded-2xl space-y-3">
+            <h2 className="text-lg font-bold text-foreground">4. Instant Self-Service Account & Data Deletion (Absolute User Control)</h2>
             <p className="text-sm text-muted leading-relaxed">
               You maintain complete and immediate control over your personal data at all times:
             </p>
             <ul className="space-y-2 text-sm text-muted leading-relaxed list-disc pl-5">
-              <li>Inside the application, you can permanently delete your account and 100% of your stored data (including your email address and optional name/nickname) at any moment with a single click on the &ldquo;Delete account (permanently erase all your data)&rdquo; button.</li>
+              <li>Inside the application, you can permanently delete your account and 100% of your stored data (including your email address, optional name/nickname, and self-tracking/quiz entries) at any moment with a single click on the &ldquo;Delete account (permanently erase all your data)&rdquo; button.</li>
               <li>Deletion is immediate, irreversible, and requires no additional verification steps or manual approval. Once triggered, the Service retains zero personal data about you.</li>
             </ul>
             <p className="text-sm text-muted leading-relaxed">
@@ -65,14 +73,27 @@ export default function PrivacyPolicy() {
           </Card>
 
           <Card className="p-6 shadow-md rounded-2xl space-y-3">
-            <h2 className="text-lg font-bold text-foreground">4. Children&apos;s Privacy</h2>
+            <h2 className="text-lg font-bold text-foreground">5. Data Retention, Your Rights & International Processing</h2>
+            <p className="text-sm text-muted leading-relaxed">
+              <span className="font-semibold text-foreground">Retention:</span> Your account profile, quiz responses, and habit/streak data stored in Supabase remain active until you permanently erase them using the &ldquo;Delete account (permanently erase all your data)&rdquo; button inside the app or contact support@adiosugar.com. Short-term technical and security logs handled by our infrastructure providers are retained only for standard operational and security windows before automatic rotation or deletion.
+            </p>
+            <p className="text-sm text-muted leading-relaxed">
+              <span className="font-semibold text-foreground">Lawful Basis & Your Rights (GDPR / Applicable Data Laws):</span> We process your data as necessary to provide the Service you request and maintain basic security and abuse prevention. In addition to instant self-service deletion inside the app, you have the right to request access to, correction of, or a copy/export of your personal data (or raise a privacy concern) by emailing support@adiosugar.com.
+            </p>
+            <p className="text-sm text-muted leading-relaxed">
+              <span className="font-semibold text-foreground">International Data Processing:</span> Because Supabase, Vercel, and Google Play may process data on servers outside your country (including in the United States or other regions), data transfers rely on those providers&apos; standard security and contractual safeguards.
+            </p>
+          </Card>
+
+          <Card className="p-6 shadow-md rounded-2xl space-y-3">
+            <h2 className="text-lg font-bold text-foreground">6. Children&apos;s Privacy</h2>
             <p className="text-sm text-muted leading-relaxed">
               The Service is intended strictly for individuals aged 18 and older. We do not knowingly collect personal information from anyone under 18. If we become aware that a minor has submitted personal data, it will be permanently deleted immediately.
             </p>
           </Card>
 
           <Card className="p-6 shadow-md rounded-2xl space-y-3">
-            <h2 className="text-lg font-bold text-foreground">5. Changes to This Privacy Policy & Contact Information</h2>
+            <h2 className="text-lg font-bold text-foreground">7. Changes to This Privacy Policy & Contact Information</h2>
             <p className="text-sm text-muted leading-relaxed">
               We reserve the right to update this Privacy Policy at any time. Any changes will be posted on this page with an updated effective date.
             </p>
