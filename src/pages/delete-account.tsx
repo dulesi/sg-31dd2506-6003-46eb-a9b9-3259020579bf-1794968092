@@ -77,7 +77,7 @@ export default function DeleteAccount() {
                   and sign in.
                 </li>
                 <li>Open your Account tab/settings.</li>
-                <li>Tap &quot;Erase my data&quot; and confirm.</li>
+                <li>Tap &quot;Delete account&quot; and confirm.</li>
                 <li>
                   Your account, email address, display name/nickname, quiz
                   responses, and daily habit/streak logs are permanently
